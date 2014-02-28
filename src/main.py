@@ -5,7 +5,7 @@ Written By:
 Bryant Pong
 2/26/14
 
-Last Updated - Bryant Pong, 2/16/14 - 12:46 PM
+Last Updated - Bryant Pong, 2/16/14 - 3:42 PM
 '''
 
 # Blender's Python API:
@@ -42,6 +42,3 @@ def unregister():
 if __name__ == '__main__':
     register()
     bpy.ops.object.project_doll_operator()
-
-
-
