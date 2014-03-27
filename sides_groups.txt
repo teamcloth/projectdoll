@@ -1,0 +1,4 @@
+Sides are Vertex Groups:
+DEF-lat_dorsi.L
+and
+DEF-lat_dorsi.R
