@@ -1,3 +1,13 @@
+'''
+ProjectDoll.py - Main Entry code for Project Doll.
+
+Team Cloth
+CSCI-4440
+3/27/14
+
+Last Edited: Bryant Pong - 3/29/14 - 11:46 PM
+'''
+
 import bpy
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import *
@@ -60,7 +70,7 @@ class PDPanel2(bpy.types.Panel):
     bpy.types.Scene.Units = bpy.props.EnumProperty(
             name="Units", description="Choose One", 
             items=(('Inches', 'Inch option', 'Descript1'), 
-            ('Centimeter','Cm option', 'Descript2')), 
+            ('Centimeter','CM option', 'Descript2')), 
             default='Inches',
     )
     
@@ -177,7 +187,7 @@ class ExportSelectedModel(bpy.types.Operator, ExportHelper):
         #Traverse vertices in mesh
         for v in bm.verts: 
             f.write("v %f %f %f\n" %(v.co[0], v.co[1], v.co[2])) 
-        for uv in bm.loops.layers.uv
+        for uv in bm.loops.layers.uv:
             f.write("vt %f %f\n" %(uv.data[length].uv[0], uv.data[length].uv[1]))  
         for v in bm.verts: 
             f.write("vn %f %f %f\n" %(v.normal[0], v.normal[1], v.normal[2])) 
