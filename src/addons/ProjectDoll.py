@@ -5,7 +5,7 @@ Team Cloth
 CSCI-4440
 3/27/14
 
-Last Edited: Bryant Pong - 3/30/14 - 12:50 PM
+Last Edited: Bryant Pong - 3/30/14 - 3:00 PM
 '''
 
 import bpy
@@ -13,6 +13,7 @@ from bpy_extras.io_utils import ExportHelper
 from bpy.props import *
 from mesh_accessor import *
 import bmesh
+import unittest
 
 bl_info = {
 	"name":	"Project Doll",
@@ -22,14 +23,17 @@ bl_info = {
 	"description": "Test clothing on model types"
 }
 
-#Placeholder properties
+# Global Mesh Accessor Object (from mesh_accessor.py):
+x = Mesh_Accessor(bpy.context.object)
+
+# Placeholder properties
 bpy.types.Object.cProp = bpy.props.IntProperty( name = "Number", min = 0, max = 10, default = 5)
-bpy.types.Object.human_height_inches = bpy.props.IntProperty( name = "Height", min = 12, max = 96, default=65)
+bpy.types.Object.human_height_inches = bpy.props.IntProperty( name = "Height", min = 12, max = 96, default=67)
 bpy.types.Object.human_height_cm = bpy.props.IntProperty( name = "Height", min = 30, max = 250, default=150)
 bpy.types.Object.human_width_inches = bpy.props.IntProperty( name = "Width", min = 30, max = 250, default=150)
 bpy.types.Object.human_width_cm = bpy.props.IntProperty( name = "Width", min = 30, max = 250, default=150)
 
-#Panel on side, inport export buttons
+# Panel on side, inport export buttons
 class PDPanel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -70,8 +74,8 @@ class PDPanel2(bpy.types.Panel):
     #Unit Measuring
     bpy.types.Scene.Units = bpy.props.EnumProperty(
             name="Units", description="Choose One", 
-            items=(('Inches', 'Inch option', 'Descript1'), 
-            ('Centimeter','CM option', 'Descript2')), 
+            items=(('Inches', 'Inch Option', 'Descript1'), 
+            ('Centimeter','CM Option', 'Descript2')), 
             default='Inches',
     )
     
@@ -87,7 +91,7 @@ class PDPanel2(bpy.types.Panel):
         layout.prop(ob, "human_height_inches", slider=True)
         layout.prop(ob, "human_width_inches", slider=True)
         #Button to make changes
-        layout.operator("mesh.make_changes_to_human", text = "Apply changes to human")
+        layout.operator("mesh.make_changes_to_human", text = "Apply Changes to Human")
 
 # Button to change human model        
 class AlterHumanModel(bpy.types.Operator):
@@ -96,7 +100,13 @@ class AlterHumanModel(bpy.types.Operator):
     
     #Implementation here
     def execute(self, context):
-        return {'Finished'}
+        
+        print("human_height_inches: " + str(bpy.context.object.human_height_inches))
+        print("human_width_inches: " + str(bpy.context.object.human_width_inches))
+        
+        
+        
+        return {'FINISHED'}
             
 #Button to import exported model             
 class ImportCustomModel(bpy.types.Operator):
@@ -104,7 +114,6 @@ class ImportCustomModel(bpy.types.Operator):
     bl_label = "Import Custom Model"
     
     #Implement here
-    
     
 #Button to bring in default model
 class ImportDefaultModel(bpy.types.Operator):
@@ -217,7 +226,6 @@ class ExportSelectedModel(bpy.types.Operator, ExportHelper):
         f.close()
         bpy.ops.object.mode_set(mode = 'OBJECT')
         
-		
 def register():
     bpy.utils.register_class(PDPanel)
     bpy.utils.register_class(ImportDefaultModel)

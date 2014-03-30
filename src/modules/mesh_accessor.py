@@ -78,14 +78,64 @@ class Mesh_Accessor:
             for group in vertex.groups:
                 if group.group == groupIndex:
                     vertexGroupPoints.append(vertex)
-                    
-        for vertex in vertexGroupPoints:
-            vertex.co.x -= 0.5
-            
         
+        for vertex in vertexGroupPoints:
+            vertex.co.z += 0.01
+            
+        return vertexGroupPoints
+            
 def main():
     x = Mesh_Accessor(bpy.context.object)
+    x.getVertexGroupPoints("DEF-stomach")
+    x.getVertexGroupPoints("DEF-head")
+    x.getVertexGroupPoints("DEF-jaw")
+    x.getVertexGroupPoints("DEF-hips")
+    x.getVertexGroupPoints("DEF-neck")
+    x.getVertexGroupPoints("DEF-spine")
+    x.getVertexGroupPoints("DEF-spine-1")
+    x.getVertexGroupPoints("DEF-chest")
+    x.getVertexGroupPoints("DEF-chest-1")
+    
+    # Right muscle groups
+    x.getVertexGroupPoints("DEF-trapezius1.R")
+    x.getVertexGroupPoints("DEF-trapezius2.R")
+    x.getVertexGroupPoints("DEF-shin.01.R")
+    x.getVertexGroupPoints("DEF-shin.02.R")
+    x.getVertexGroupPoints("DEF-shin.03.R")
+    x.getVertexGroupPoints("DEF-soleus.R")
+    x.getVertexGroupPoints("DEF-scapula.R")
+    x.getVertexGroupPoints("DEF-quadriceps.R")
+    x.getVertexGroupPoints("DEF-deltoid.R")
+    x.getVertexGroupPoints("DEF-clavicle.R")
+    x.getVertexGroupPoints("DEF-eye.R")
+    x.getVertexGroupPoints("breast.R")
+    x.getVertexGroupPoints("DEF-thigh.R")
+    x.getVertexGroupPoints("DEF-femoris.R")
+    x.getVertexGroupPoints("DEF-gluteus.R")
+    x.getVertexGroupPoints("DEF-knee_fan.R")
+    x.getVertexGroupPoints("DEF-lat_dorsi.R")
+    x.getVertexGroupPoints("DEF-pectoralis.R")
+    
+    # Left muscle groups
+    x.getVertexGroupPoints("DEF-shin.01.L")
+    x.getVertexGroupPoints("DEF-shin.02.L")
+    x.getVertexGroupPoints("DEF-shin.03.L")
+    x.getVertexGroupPoints("DEF-trapezius1.L")
+    x.getVertexGroupPoints("DEF-trapezius2.L")
+    x.getVertexGroupPoints("DEF-soleus.L")
+    x.getVertexGroupPoints("DEF-scapula.L")
+    x.getVertexGroupPoints("DEF-quadriceps.L")
+    x.getVertexGroupPoints("DEF-clavicle.L")
+    x.getVertexGroupPoints("DEF-deltoid.L")
+    x.getVertexGroupPoints("DEF-eye.L")
+    x.getVertexGroupPoints("breast.L")
+    x.getVertexGroupPoints("DEF-thigh.L")
+    x.getVertexGroupPoints("DEF-femoris.L")
+    x.getVertexGroupPoints("DEF-gluteus.L")
+    x.getVertexGroupPoints("DEF-knee_fan.L")
     x.getVertexGroupPoints("DEF-lat_dorsi.L")
+    x.getVertexGroupPoints("DEF-pectoralis.L")
+    
     
 if __name__ == '__main__':
     main()
