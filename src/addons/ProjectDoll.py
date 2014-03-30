@@ -5,12 +5,13 @@ Team Cloth
 CSCI-4440
 3/27/14
 
-Last Edited: Bryant Pong - 3/29/14 - 11:46 PM
+Last Edited: Bryant Pong - 3/30/14 - 12:50 PM
 '''
 
 import bpy
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import *
+from mesh_accessor import *
 import bmesh
 
 bl_info = {
