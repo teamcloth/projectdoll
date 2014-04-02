@@ -5,7 +5,7 @@ Team Cloth
 CSCI-4440
 3/27/14
 
-Last Edited: Bryant Pong - 4/1/14 - 7:20 PM
+Last Edited: Bryant Pong - 4/2/14 - 1:32 PM
 '''
 
 import bpy

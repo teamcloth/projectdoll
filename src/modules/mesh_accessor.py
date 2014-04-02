@@ -4,7 +4,7 @@ mesh_accessor.py - This class provides functions to access a mesh from the model
 Team Cloth
 3/29/14
 
-Last Updated: Bryant Pong: 3/30/14 - 1:02 AM
+Last Updated: Bryant Pong: 4/2/14 - 1:35 PM
 '''
 
 # Blender API Libraries:
@@ -81,13 +81,16 @@ class Mesh_Accessor:
         
         '''
         for vertex in vertexGroupPoints:
-            vertex.co.z += 0.01
+            vertex.co.x -= 0.1
         '''
+       
             
         return vertexGroupPoints
             
 def main():
     x = Mesh_Accessor(bpy.context.object)
+    
+    '''
     x.getVertexGroupPoints("DEF-stomach")
     x.getVertexGroupPoints("DEF-head")
     x.getVertexGroupPoints("DEF-jaw")
@@ -137,6 +140,22 @@ def main():
     x.getVertexGroupPoints("DEF-knee_fan.L")
     x.getVertexGroupPoints("DEF-lat_dorsi.L")
     x.getVertexGroupPoints("DEF-pectoralis.L")
+    '''
+    
+    # x.getVertexGroupPoints("DEF-lat_dorsi.R")
+    for vertex in x.getVertexGroupPoints("DEF-lat_dorsi.R"):
+        vertex.co.x += 0.1  
+    for vertex in x.getVertexGroupPoints("DEF-lat_dorsi.L"):
+        vertex.co.x -= 0.1
+    for vertex in x.getVertexGroupPoints("DEF-stomach"):
+        vertex.co.y += 0.1
+    for vertex in x.getVertexGroupPoints("DEF-gluteus.L"):
+        vertex.co.x -= 0.1
+    for vertex in x.getVertexGroupPoints("DEF-gluteus.R"):
+        vertex.co.x += 0.1
+        
+    
+    
     
     
 if __name__ == '__main__':
