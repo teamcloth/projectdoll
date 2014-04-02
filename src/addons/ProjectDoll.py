@@ -5,13 +5,14 @@ Team Cloth
 CSCI-4440
 3/27/14
 
-Last Edited: Bryant Pong - 3/30/14 - 3:00 PM
+Last Edited: Bryant Pong - 4/1/14 - 7:20 PM
 '''
 
 import bpy
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import *
 from mesh_accessor import *
+from mesh_utilities import *
 import bmesh
 import unittest
 
@@ -24,7 +25,10 @@ bl_info = {
 }
 
 # Global Mesh Accessor Object (from mesh_accessor.py):
-x = Mesh_Accessor(bpy.context.object)
+mesh_accessor = Mesh_Accessor(bpy.context.object)
+
+# Global Mesh_Utilities Object (from mesh_utilities.py):
+mesh_utilities = Mesh_Utilities()
 
 # Placeholder properties
 bpy.types.Object.cProp = bpy.props.IntProperty( name = "Number", min = 0, max = 10, default = 5)
@@ -100,11 +104,29 @@ class AlterHumanModel(bpy.types.Operator):
     
     #Implementation here
     def execute(self, context):
+    
+        '''
+        We need to set the current mesh to modify:
+        '''
+        mesh_accessor.setModelMesh(bpy.context.object)
         
         print("human_height_inches: " + str(bpy.context.object.human_height_inches))
         print("human_width_inches: " + str(bpy.context.object.human_width_inches))
         
+        '''
+        We want to change the height and width of the model.  To do so, we first
+        need to get the list of vertex groups (from mesh_utilities.py).
+        '''
+        listOfModelVertexGroups = mesh_utilities.entireBodyMesh
         
+        '''
+        Iterate through these vertex groups, getting the vertex groups from the
+        mesh_accessor function getVertexGroups, and then calling the 
+        modifyMesh function:
+        '''
+        for vertexGroup in listOfModelVertexGroups:
+            nextVertexGroup = mesh_accessor.getVertexGroupPoints(vertexGroup)
+            mesh_utilities.modifyMesh(nextVertexGroup, 0, 0, -0.1)
         
         return {'FINISHED'}
             

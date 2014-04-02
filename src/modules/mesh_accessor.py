@@ -79,8 +79,10 @@ class Mesh_Accessor:
                 if group.group == groupIndex:
                     vertexGroupPoints.append(vertex)
         
+        '''
         for vertex in vertexGroupPoints:
             vertex.co.z += 0.01
+        '''
             
         return vertexGroupPoints
             
