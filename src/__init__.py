@@ -13,28 +13,57 @@ bl_info = {
 
 # Supporting reloading the add-on
 
-if "bpy" in locals():
-  import imp
-  imp.reload(ProjectDolltest)
+#if "bpy" in locals():
+  #import imp
+  #imp.reload(ProjectDolltest)
   #imp.reload()
 #else:
     #from . import ProjectDolltest
-
+    
 import bpy
 from bpy.props import (BoolProperty,
                        FloatProperty,
                        StringProperty,
                        EnumProperty,
+                       IntProperty
                        )
+#from mesh_accessor import *
+#from mesh_utilities import *
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
 from io_scene_obj import import_obj , export_obj
 
+# Function called when model height/width is changed
+def changeMesh(self, context):
+    # Call the mesh alter function passing Human_height_cm
+    #mesh_utilities.modifyMesh1D(context, context.object.human_height_inches, context.object.human_width_inches)
+    # Change human_height_cm afterwards to Human_height_inch 
+    context.object.human_stable_height = context.object.human_height_inches
+    context.object.human_stable_width = context.object.human_width_inches
+    return 0
+    ''' # For use when unit conversion is finished being implemented
+    if context.scene.Units == "Inches":
+        #print("Changing inches")
+        # Call the mesh alter function passing Human_height_cm
+        #mesh_utilities.modifyMesh1D(context, context.object.human_height_inches, context.object.human_width_inches)
+        # Change human_height_cm afterwards to Human_height_inch 
+        context.object.human_stable_height = context.object.human_height_inches
+        context.object.human_stable_width = context.object.human_width_inches
+        return 0
+    
+    elif context.scene.Units == 'Centimeter': # Cm
+        print("Changing cm")
+        #mesh_utilities.modifyMesh1D(context, context.object.human_height_cm / 2.5, context.object.human_width_cm / 2.5)
+        context.object.human_stable_height = context.object.human_height_cm / 2.5
+        context.object.human_stable_width = context.object.human_width_cm / 2.5
+        return 0
+    '''
 #Custom properties
-bpy.types.Object.cProp = bpy.props.IntProperty( name = "Number", min = 0, max = 10, default = 5)
-bpy.types.Object.human_height_inches = bpy.props.IntProperty( name = "Height", min = 12, max = 96, default=67)
-bpy.types.Object.human_height_cm = bpy.props.IntProperty( name = "Height", min = 30, max = 250, default=150)
-bpy.types.Object.human_width_inches = bpy.props.IntProperty( name = "Width", min = 30, max = 250, default=150)
-bpy.types.Object.human_width_cm = bpy.props.IntProperty( name = "Width", min = 30, max = 250, default=150)
+bpy.types.Object.human_height_inches = bpy.props.FloatProperty( name = "Height", min = 52, max = 82,update=changeMesh)
+bpy.types.Object.human_height_cm = bpy.props.FloatProperty( name = "Height", min = 52*2.5, max = 82*2.5,update=changeMesh)
+bpy.types.Object.human_width_inches = bpy.props.FloatProperty( name = "Width", min =1 , max = 24,update=changeMesh)
+bpy.types.Object.human_width_cm = bpy.props.FloatProperty( name = "Width", min = 2.5, max= 24*2.5,update=changeMesh)
+bpy.types.Object.human_stable_height = bpy.props.FloatProperty( name= "Stable_height",options={'HIDDEN'}) 
+bpy.types.Object.human_stable_width = bpy.props.FloatProperty( name= "Stable_width",options={'HIDDEN'}) 
 
 # Panel on side, inport export buttons
 class FilePanel(bpy.types.Panel):
@@ -61,55 +90,61 @@ class FilePanel(bpy.types.Panel):
         
         #Import a custom model/mesh
         col = layout.column(align = True)
-        col.label(text="Import your own clothing/model")
+        col.label(text="Import other model")
         row = col.row(align = True)
         row.operator("mesh.import_custom_model", text = "Import Custom Model")
 	#end draw
 
 
 #Another Panel for Human properties
-class HumanPanel(bpy.types.Panel):
+class MeshPanel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_context = "objectmode"
     bl_label = "Human Properties"
     
-    #Unit Measuring
-    bpy.types.Scene.Units = bpy.props.EnumProperty(
-            name="Units", description="Choose One", 
-            items=(('Inches', 'Inch Option', 'Descript1'), 
-            ('Centimeter','CM Option', 'Descript2')), 
-            default='Inches',
-    )
-    
+    # Properties
+    bpy.types.Scene.Units = EnumProperty(
+        name="Units", description="Choose One", 
+        items=(('Inches', 'Inch', 'Descript1'), ('Centimeter','Cm', 'Descript2')), 
+        default='Inches',
+        )
+               
     def draw(self, context):
         layout = self.layout
         scn = context.scene
-        layout.prop(scn,"Units", expand=True)
+        #layout.prop(scn,"Units", expand=True)
         ob = context.object
-        #if not ob:
-            #return
-        #Customization of human model
-        layout.prop(ob, "cProp", slider=True)
+        #Customization of model height and width, updates automatically in changeMesh()
+        ''' DEBUGGING INCH -> CM CONVERSION
+        if bpy.context.scene.Units == 'Inches':
+            context.object.human_height_inches = context.object.human_stable_height 
+            context.object.human_width_inches = context.object.human_stable_width
+            layout.prop(ob, "human_height_inches", slider=True)
+            layout.prop(ob, "human_width_inches", slider=True)
+        elif bpy.context.scene.Units == 'Centimeter':
+            context.object.human_height_inches = context.object.human_stable_height 
+            context.object.human_width_inches = context.object.human_stable_width
+            layout.prop(ob, "human_height_cm", slider=True)
+            layout.prop(ob, "human_width_cm", slider=True)
+        '''
+        # Inch measurement
+        #context.object.human_height_inches = context.object.human_stable_height 
+        #context.object.human_width_inches = context.object.human_stable_width
         layout.prop(ob, "human_height_inches", slider=True)
         layout.prop(ob, "human_width_inches", slider=True)
-        #Button to make changes
-        layout.operator("mesh.make_changes_to_human", text = "Apply Changes to Human")
-        
+        # Get the material of the object
+        mat = bpy.context.object.active_material
+        # Allow changing of object color
+        layout.prop(mat, "diffuse_color", text="Color")
+'''        
 #Another Panel for Human properties
 class ClothingPanel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_context = "objectmode"
     bl_label = "Clothing Properties"
-    
-    #check if possible to alter clothing material
-    '''
-    def poll(cls, context):
-        mat = context.material
-        engine = context.scene.render.engine
-        return check_material(mat) and (mat.type in {'SURFACE', 'WIRE'}) and (engine in cls.COMPAT_ENGINES)
-    '''    
+       
     def draw(self, context):
         layout = self.layout
         
@@ -118,7 +153,7 @@ class ClothingPanel(bpy.types.Panel):
         col = layout.column()
         # Allow changing of object color
         col.prop(mat, "diffuse_color", text="Color")
-        
+'''        
 #Button to export selected model
 class ExportSelectedModel(bpy.types.Operator, ExportHelper):
     bl_idname = "mesh.export_selected_model"
@@ -270,17 +305,56 @@ class ExportSelectedModel(bpy.types.Operator, ExportHelper):
 
         keywords["global_matrix"] = global_matrix
         return export_obj.save(self, context, **keywords)
-
-
+'''
 # Operator to change human model
 class AlterHumanModel(bpy.types.Operator):
     bl_idname = "mesh.make_changes_to_human"
     bl_label = "Change Human"
     
+    Units = EnumProperty(
+            name="Units", description="Choose One", 
+            items=(('Inches', 'Inch Option', 'Descript1'), 
+            ('Centimeter','CM Option', 'Descript2')), 
+            default='Inches',
+    )
+    
+    # Wanted measurements
+    
+    # Height
+    
+    height_in_inches = IntProperty(
+        name="Height (inches)",
+        default=bpy.types.Object.human_height_inches,
+        min= 36,
+        max= 120
+        )
+    
+    height_in_cm = IntProperty(
+        name="Height (cm)",
+        default=bpy.types.Object.human_height_cm,
+        min= 90,
+        max= 300
+        )
+    
+    #Width
+    width_in_inches = IntProperty(
+        name="Width (inches)",
+        default=bpy.types.Object.human_width_inches,
+        min= 15,
+        max= 30
+        )
+    
+    width_in_cm = IntProperty(
+        name="Width (cm)",
+        default=bpy.types.Object.human_width_inches,
+        min= 37,
+        max= 75
+        )
+    
     #Implementation here
     def execute(self, context):
         return {"FINISHED"}
-    
+'''    
 
 #Button to import exported model             
 class ImportCustomModel(bpy.types.Operator, ImportHelper):
@@ -397,9 +471,7 @@ class ImportCustomModel(bpy.types.Operator, ImportHelper):
             keywords["relpath"] = os.path.dirname((bpy.data.path_resolve("filepath", False).as_bytes()))
 
         return import_obj.load(self, context, **keywords)
-        '''
-        return {"FINISHED"}
-        '''    
+       
 # Button to bring in default model
 class ImportDefaultModel(bpy.types.Operator):
     bl_idname = "mesh.import_default_model"
@@ -408,14 +480,14 @@ class ImportDefaultModel(bpy.types.Operator):
 def register():
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(FilePanel)
-    bpy.types.INFO_MT_file_import.append(HumanPanel)
-    bpy.types.INFO_MT_file_import.append(ClothingPanel)
+    bpy.types.INFO_MT_file_import.append(MeshPanel)
+    #bpy.types.INFO_MT_file_import.append(ClothingPanel)
 
 def unregister():
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(FilePanel)
-    bpy.types.INFO_MT_file_import.append(HumanPanel)
-    bpy.types.INFO_MT_file_import.append(ClothingPanel)
+    bpy.types.INFO_MT_file_import.append(MeshPanel)
+    #bpy.types.INFO_MT_file_import.append(ClothingPanel)
     
 if __name__ == "__main__":
     register()
