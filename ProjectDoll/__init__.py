@@ -27,19 +27,80 @@ from bpy.props import (BoolProperty,
                        EnumProperty,
                        IntProperty
                        )
-#from mesh_accessor import *
-#from mesh_utilities import *
+# Import the Project Doll Mesh Utilities:                       
+from mesh_accessor import *
+from mesh_utilities import *
+
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
 from io_scene_obj import import_obj , export_obj
+
+# Global MeshAccessor Object (from mesh_accessor.py):
+meshAccessor = MeshAccessor(bpy.context.object)
+
+# Global MeshUtilities Object (from mesh_utilties.py):
+meshUtilities = MeshUtilities()
 
 # Function called when model height/width is changed
 def changeMesh(self, context):
     # Call the mesh alter function passing Human_height_cm
     #mesh_utilities.modifyMesh1D(context, context.object.human_height_inches, context.object.human_width_inches)
     # Change human_height_cm afterwards to Human_height_inch 
+    
+    
+    print("human_stable_height is " + str(context.object.human_stable_height))
+    print("human_stable_width is " + str(context.object.human_stable_width))
+    
+    ''' 
+    Let's first get the current mesh to operate on (in case the user has selected
+    another mesh beforehand):
+    '''
+    meshAccessor.setModelMesh(bpy.context.object)
+    
+    '''
+    We want to change the height and width of the model.  To do so, we first
+    need to get the list of vertex groups (from mesh_utilities.py).
+    '''
+    
+    # Select all groups in the entire body:
+    listOfModelVertexGroups = meshUtilities.entireBodyMesh
+    
+    '''
+    We need to change the height of the currently selected model.  To do so,
+    iterate through these vertex groups, get the points corresponding to each
+    vertex group, and then modify them:
+    '''
+    for vertexGroup in listOfModelVertexGroups:
+        #print("vertexGroup is: " + str(vertexGroup))
+        nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
+        print("human_stable_height is: " + str(context.object.human_stable_height))
+        print("human_height_inches is: " + str(context.object.human_height_inches))
+        meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.007 * (context.object.human_height_inches - context.object.human_stable_height))
+        
+    '''
+    Next, let's change the width of the model:
+    '''
+    listOfLeftTorsoSideVertexGroups = meshUtilities.leftTorsoSide
+    listOfRightTorsoSideVertexGroups = meshUtilities.rightTorsoSide
+    listOfFrontTorsoVertexGroups = meshUtilities.frontTorso
+   
+    for vertexGroup in listOfLeftTorsoSideVertexGroups:
+        nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
+        meshUtilities.modifyMesh1D(nextVertexGroup, -0.007 * (context.object.human_stable_width - context.object.human_width_inches), 0, 0)
+        
+    for vertexGroup in listOfRightTorsoSideVertexGroups:
+        nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
+        meshUtilities.modifyMesh1D(nextVertexGroup, 0.007 * (context.object.human_stable_width - context.object.human_width_inches), 0, 0)
+    
+    for vertexGroup in listOfFrontTorsoSideVertexGroups:
+        nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
+        meshUtilities.modifyMesh1D(nextVertexGroup, 0, -0.007 * (context.object.human_stable_width - context.object.human_width_inches), 0)
+            
+
     context.object.human_stable_height = context.object.human_height_inches
     context.object.human_stable_width = context.object.human_width_inches
-    return 0
+    
+    # Blender requires us to return None 
+    return None
     ''' # For use when unit conversion is finished being implemented
     if context.scene.Units == "Inches":
         #print("Changing inches")
@@ -62,7 +123,7 @@ bpy.types.Object.human_height_inches = bpy.props.FloatProperty( name = "Height",
 bpy.types.Object.human_height_cm = bpy.props.FloatProperty( name = "Height", min = 52*2.5, max = 82*2.5,update=changeMesh)
 bpy.types.Object.human_width_inches = bpy.props.FloatProperty( name = "Width", min =1 , max = 24,update=changeMesh)
 bpy.types.Object.human_width_cm = bpy.props.FloatProperty( name = "Width", min = 2.5, max= 24*2.5,update=changeMesh)
-bpy.types.Object.human_stable_height = bpy.props.FloatProperty( name= "Stable_height",options={'HIDDEN'}) 
+bpy.types.Object.human_stable_height = bpy.props.FloatProperty( name= "Stable_height",default=67,options={'HIDDEN'}) 
 bpy.types.Object.human_stable_width = bpy.props.FloatProperty( name= "Stable_width",options={'HIDDEN'}) 
 
 # Panel on side, inport export buttons
@@ -491,4 +552,3 @@ def unregister():
     
 if __name__ == "__main__":
     register()
-

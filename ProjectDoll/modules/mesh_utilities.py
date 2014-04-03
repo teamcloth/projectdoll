@@ -5,20 +5,18 @@ Team Cloth
 CSCI-4440
 3/30/14
 
-Last Updated: Bryant Pong: 4/2/14 - 2:25 PM
+Last Updated: Bryant Pong: 4/2/14 - 9:43 PM
 '''
 
-'''
-Blender and STL Libraries:
-'''
+
+# Blender and STL Libraries:
 import bpy
 import bmesh
 import unittest
 
-'''
-Mesh_Utilities class definition:
-'''
-class Mesh_Utilities:
+
+# Mesh_Utilities class definition:
+class MeshUtilities:
     
     '''
     Constructor for Mesh_Utilities.  Because there are certain mesh groups
