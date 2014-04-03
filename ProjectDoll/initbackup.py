@@ -10,7 +10,16 @@ bl_info = {
 	"description": "Test clothing on model types",
     "category": "Add Mesh"
 }
-   
+
+# Supporting reloading the add-on
+
+#if "bpy" in locals():
+  #import imp
+  #imp.reload(ProjectDolltest)
+  #imp.reload()
+#else:
+    #from . import ProjectDolltest
+    
 import bpy
 from bpy.props import (BoolProperty,
                        FloatProperty,
@@ -18,7 +27,7 @@ from bpy.props import (BoolProperty,
                        EnumProperty,
                        IntProperty
                        )
-#Import the Project Doll Mesh Utilities:                       
+ Import the Project Doll Mesh Utilities:                       
 from mesh_accessor import *
 from mesh_utilities import *
 
@@ -132,12 +141,24 @@ class FilePanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         
+        #Import default model buttons (m/f are the same for now)
+        #col = layout.column(align = True)
+        #col.label(text="Import Default models")
+        #row = col.row(align = True)
+        #row.operator("mesh.import_default_model", text = "Male")
+        #row.operator("mesh.import_default_model", text = "Female")
+        
         #Export the selected model button
         col = layout.column(align = True)
+        #col.label(text="Export selected mesh")
+        #row = col.row(align = True)
+        #row.operator(export_obj.ExportOBJ.bl_idname, text="Export Selected Model")
+        
         #Import a custom model/mesh
         col = layout.column(align = True)
         col.label(text="Import other model")
         row = col.row(align = True)
+        #row.operator(import_obj.ImportOBJ.bl_name, text = "Import Clothing obj")
         row.operator("mesh.import_custom_model", text = "Clothing")
         row.operator(io_import_scene_mhx.ImportMhx.bl_idname, text = "Human")
 	#end draw
@@ -162,13 +183,45 @@ class MeshPanel(bpy.types.Panel):
         scn = context.scene
         #layout.prop(scn,"Units", expand=True)
         ob = context.object
+        #Customization of model height and width, updates automatically in changeMesh()
+        ''' DEBUGGING INCH -> CM CONVERSION
+        if bpy.context.scene.Units == 'Inches':
+            context.object.human_height_inches = context.object.human_stable_height 
+            context.object.human_width_inches = context.object.human_stable_width
+            layout.prop(ob, "human_height_inches", slider=True)
+            layout.prop(ob, "human_width_inches", slider=True)
+        elif bpy.context.scene.Units == 'Centimeter':
+            context.object.human_height_inches = context.object.human_stable_height 
+            context.object.human_width_inches = context.object.human_stable_width
+            layout.prop(ob, "human_height_cm", slider=True)
+            layout.prop(ob, "human_width_cm", slider=True)
+        '''
+        # Inch measurement
+        #context.object.human_height_inches = context.object.human_stable_height 
+        #context.object.human_width_inches = context.object.human_stable_width
         layout.prop(ob, "human_height_inches", slider=True)
         layout.prop(ob, "human_width_inches", slider=True)
         # Get the material of the object
         mat = bpy.context.object.active_material
         # Allow changing of object color
         layout.prop(mat, "diffuse_color", text="Color")
-     
+'''        
+#Another Panel for Human properties
+class ClothingPanel(bpy.types.Panel):
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_context = "objectmode"
+    bl_label = "Clothing Properties"
+       
+    def draw(self, context):
+        layout = self.layout
+        
+        mat = bpy.context.object.active_material
+        
+        col = layout.column()
+        # Allow changing of object color
+        col.prop(mat, "diffuse_color", text="Color")
+'''        
 # Button to export selected model to .mhx
 class ExportSelectedModel(bpy.types.Operator, ExportHelper):
     bl_idname = "mesh.export_selected_model"
@@ -321,7 +374,56 @@ class ExportSelectedModel(bpy.types.Operator, ExportHelper):
 
         keywords["global_matrix"] = global_matrix
         return export_obj.save(self, context, **keywords)
-
+    '''
+# Operator to change human model
+class AlterHumanModel(bpy.types.Operator):
+    bl_idname = "mesh.make_changes_to_human"
+    bl_label = "Change Human"
+    
+    Units = EnumProperty(
+            name="Units", description="Choose One", 
+            items=(('Inches', 'Inch Option', 'Descript1'), 
+            ('Centimeter','CM Option', 'Descript2')), 
+            default='Inches',
+    )
+    
+    # Wanted measurements
+    
+    # Height
+    
+    height_in_inches = IntProperty(
+        name="Height (inches)",
+        default=bpy.types.Object.human_height_inches,
+        min= 36,
+        max= 120
+        )
+    
+    height_in_cm = IntProperty(
+        name="Height (cm)",
+        default=bpy.types.Object.human_height_cm,
+        min= 90,
+        max= 300
+        )
+    
+    #Width
+    width_in_inches = IntProperty(
+        name="Width (inches)",
+        default=bpy.types.Object.human_width_inches,
+        min= 15,
+        max= 30
+        )
+    
+    width_in_cm = IntProperty(
+        name="Width (cm)",
+        default=bpy.types.Object.human_width_inches,
+        min= 37,
+        max= 75
+        )
+    
+    #Implementation here
+    def execute(self, context):
+        return {"FINISHED"}
+'''    
 
 #Button to import exported model             
 class ImportCustomModel(bpy.types.Operator, ImportHelper):
@@ -438,19 +540,23 @@ class ImportCustomModel(bpy.types.Operator, ImportHelper):
             keywords["relpath"] = os.path.dirname((bpy.data.path_resolve("filepath", False).as_bytes()))
 
         return import_obj.load(self, context, **keywords)
+       
+# Button to bring in default model
+class ImportDefaultModel(bpy.types.Operator):
+    bl_idname = "mesh.import_default_model"
+    bl_label = "Import Default Model"
 
-# register our classes into blender
 def register():
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(FilePanel)
     bpy.types.INFO_MT_file_import.append(MeshPanel)
-    
+    #bpy.types.INFO_MT_file_import.append(ClothingPanel)
 
 def unregister():
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(FilePanel)
     bpy.types.INFO_MT_file_import.append(MeshPanel)
-    
+    #bpy.types.INFO_MT_file_import.append(ClothingPanel)
     
 if __name__ == "__main__":
     register()
