@@ -4,7 +4,7 @@ mesh_accessor.py - This class provides functions to access a mesh from the model
 Team Cloth
 3/29/14
 
-Last Updated: Bryant Pong: 4/2/14 - 9:39 PM
+Last Updated: Bryant Pong: 4/6/14 - 2:01 PM
 '''
 
 # Blender API Libraries:
@@ -53,6 +53,9 @@ class MeshAccessor:
     '''
     def getVertexGroupPoints(self, vertexGroupName):
         
+        groupIndex = -1
+        print("groupIndex: " + groupIndex)
+        
         '''
         First, let's loop through all the vertex groups to find the index of the
         vertex group we're interested in:
@@ -63,12 +66,19 @@ class MeshAccessor:
                 groupIndex = i
                 break
             
-        #print("groupIndex is " + str(groupIndex))
-        
+        '''
+        If the groupIndex is -1, then the vertexGroupName does not exist in
+        this mesh; return None:
+        '''
+        print("groupIndex: " + str(groupIndex))
+        if groupIndex == -1:
+            return None
+                        
         '''
         This is the list that will hold the collection of points in the specified
         vertex group:
         '''
+        
         vertexGroupPoints = []
         
         # Let's now get all the points in the specified vertex group!
@@ -76,23 +86,6 @@ class MeshAccessor:
             for group in vertex.groups:
                 if group.group == groupIndex:
                     vertexGroupPoints.append(vertex)
+        
             
         return vertexGroupPoints
-            
-def main():
-    x = MeshAccessor(bpy.context.object)
-    
-    # x.getVertexGroupPoints("DEF-lat_dorsi.R")
-    for vertex in x.getVertexGroupPoints("DEF-lat_dorsi.R"):
-        vertex.co.x += 0.1  
-    for vertex in x.getVertexGroupPoints("DEF-lat_dorsi.L"):
-        vertex.co.x -= 0.1
-    for vertex in x.getVertexGroupPoints("DEF-stomach"):
-        vertex.co.y += 0.1
-    for vertex in x.getVertexGroupPoints("DEF-gluteus.L"):
-        vertex.co.x -= 0.1
-    for vertex in x.getVertexGroupPoints("DEF-gluteus.R"):
-        vertex.co.x += 0.1
-        
-if __name__ == '__main__':
-    main()
