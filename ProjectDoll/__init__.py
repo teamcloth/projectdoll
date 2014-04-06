@@ -113,12 +113,12 @@ def changeMesh(self, context):
         return 0
     '''
 #Custom properties
-bpy.types.Object.human_height_inches = bpy.props.FloatProperty( name = "Height", min = 52, max = 82,update=changeMesh)
-bpy.types.Object.human_height_cm = bpy.props.FloatProperty( name = "Height", min = 52*2.5, max = 82*2.5,update=changeMesh)
-bpy.types.Object.human_width_inches = bpy.props.FloatProperty( name = "Width", min =1 , max = 24,update=changeMesh)
-bpy.types.Object.human_width_cm = bpy.props.FloatProperty( name = "Width", min = 2.5, max= 24*2.5,update=changeMesh)
-bpy.types.Object.human_stable_height = bpy.props.FloatProperty( name= "Stable_height",default=67,options={'HIDDEN'}) 
-bpy.types.Object.human_stable_width = bpy.props.FloatProperty( name= "Stable_width",default=12.5,options={'HIDDEN'}) 
+bpy.types.Object.human_height_inches = bpy.props.FloatProperty( name = "Height", min = 52, max = 82)#,update=changeMesh)
+bpy.types.Object.human_height_cm = bpy.props.FloatProperty( name = "Height", min = 52*2.5, max = 82*2.5)#,update=changeMesh)
+bpy.types.Object.human_width_inches = bpy.props.FloatProperty( name = "Width", min =1 , max = 24)#,update=changeMesh)
+bpy.types.Object.human_width_cm = bpy.props.FloatProperty( name = "Width", min = 2.5, max= 24*2.5)#,update=changeMesh)
+bpy.types.Object.human_stable_height = bpy.props.FloatProperty( name= "Stable_height",default=67)#,options={'HIDDEN'}) 
+bpy.types.Object.human_stable_width = bpy.props.FloatProperty( name= "Stable_width",default=12.5)#,options={'HIDDEN'}) 
 
 ############################################################## END OF GLOBALS ############################################################
 
@@ -162,13 +162,29 @@ class MeshPanel(bpy.types.Panel):
         scn = context.scene
         #layout.prop(scn,"Units", expand=True)
         ob = context.object
-        layout.prop(ob, "human_height_inches", slider=True)
-        layout.prop(ob, "human_width_inches", slider=True)
         # Get the material of the object
         mat = bpy.context.object.active_material
         # Allow changing of object color
         layout.prop(mat, "diffuse_color", text="Color")
-     
+        col1 = layout.column(align=True)
+        # Allow changing of human properties
+        col1.label(text="Human properties")
+        col1.prop(ob, "human_height_inches", slider=True)
+        col1.prop(ob, "human_width_inches", slider=True)
+        col1.operator("mesh.make_changes_to_human",text="Make Changes")
+        # Allow changes of clothes properties
+        col2 = layout.column(align=True)
+        col2.label(text="Clothing properties")
+
+# Operator to change human model
+class AlterHumanModel(bpy.types.Operator):
+    bl_idname = "mesh.make_changes_to_human"
+    bl_label = "Change Human"
+    
+    def execute(self, context):
+        changeMesh(self, context)
+        return {"FINISHED"}
+        
 # Button to export selected model to .mhx
 class ExportSelectedModel(bpy.types.Operator, ExportHelper):
     bl_idname = "mesh.export_selected_model"
