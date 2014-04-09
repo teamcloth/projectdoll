@@ -54,7 +54,7 @@ class MeshAccessor:
     def getVertexGroupPoints(self, vertexGroupName):
         
         groupIndex = -1
-        print("groupIndex: " + str(groupIndex))
+        print("groupIndex: " + groupIndex)
         
         '''
         First, let's loop through all the vertex groups to find the index of the

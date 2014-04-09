@@ -5,7 +5,7 @@ mesh_accessor.py).
 Team Cloth
 4/6/14
 
-Last Written: Bryant Pong: 4/6/14 - 2:12 PM
+Last Written: Bryant Pong: 4/9/14 - 1:40 PM
 '''
 
 # Import the Blender Library:
@@ -42,16 +42,20 @@ class MeshAccessorTests(unittest.TestCase):
         selectedMeshName = self.meshAccessor.getModelMesh().name
         self.assertEqual(selectedMeshName, 'male_modelBody')
         
-    
     # Test to verify that the currently selected vertex group is None:
     def testSelectedVertexGroup(self):
         selectedVertexGroup = self.meshAccessor.getCurrentVertexGroup()
         self.assertEqual(selectedVertexGroup, None)
         
-    # Test to verify that a non-existant vertex group returns not None:
+    # Test to verify that an existing vertex-group actually contains points:
     def testVertexGroup(self):
         pointCloud = self.meshAccessor.getVertexGroupPoints("DEF-hand.L")
         self.assertEqual(len(pointCloud), 190)
+        
+    # Test to verify that a non-existing vertex-group does NOT contain points:
+    def testNonExistantVertexGroup(self):
+        pointCloud = self.meshAccessor.getVertexGroupPoints("BADVERTEXGROUP")
+        self.assertEqual(pointCloud, None)
         
     
     
