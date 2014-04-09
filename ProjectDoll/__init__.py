@@ -5,7 +5,7 @@
 bl_info = {
 	"name":	"Project Doll",
 	"author" : "Team Cloth",
-	"version": (0,0,1),
+	"version": (0,0,2),
 	"blender": (2,6,2),
 	"description": "Test clothing on model types",
     "category": "Add Mesh"
@@ -85,7 +85,7 @@ def changeMesh(self, context):
         nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
         meshUtilities.modifyMesh1D(nextVertexGroup, 0.007 * (context.object.human_stable_width - context.object.human_width_inches), 0, 0)
     
-    for vertexGroup in listOfFrontTorsoSideVertexGroups:
+    for vertexGroup in listOfFrontTorsoVertexGroups:
         nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
         meshUtilities.modifyMesh1D(nextVertexGroup, 0, -0.007 * (context.object.human_stable_width - context.object.human_width_inches), 0)
             
