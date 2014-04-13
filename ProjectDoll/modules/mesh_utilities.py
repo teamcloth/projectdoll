@@ -5,7 +5,7 @@ Team Cloth
 CSCI-4440
 3/30/14
 
-Last Updated: Bryant Pong: 4/2/14 - 9:43 PM
+Last Updated: Bryant Pong: 4/13/14 - 2:55 PM
 '''
 
 
@@ -148,15 +148,6 @@ class MeshUtilities:
             vertex.co.y += bMGY
             vertex.co.z += bMGZ
        
-   
-''' 
-runUnitTests() runs unit tests for this module.
-'''
-def runUnitTests():
-    print("Now running Unit Tests for Mesh_Utilities:")
-            
-'''
-To run unit for this module, just click "Run Script".
-'''
-if __name__ == '__main__':
-    runUnitTests()
+    '''
+    modifyMeshSide() allows a user to modify 
+    '''

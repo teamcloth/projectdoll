@@ -23,7 +23,7 @@ from mesh_accessor import *
 from mesh_utilities import *
 
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
-from io_scene_obj import import_obj , export_obj
+from io_scene_obj import import_obj, export_obj
 import io_import_scene_mhx
 
 ############################################################# Global Vars############################################################ 
@@ -95,30 +95,37 @@ def changeMesh(self, context):
     
     # Blender requires us to return None 
     return None
-    ''' # For use when unit conversion is finished being implemented
-    if context.scene.Units == "Inches":
-        #print("Changing inches")
-        # Call the mesh alter function passing Human_height_cm
-        #mesh_utilities.modifyMesh1D(context, context.object.human_height_inches, context.object.human_width_inches)
-        # Change human_height_cm afterwards to Human_height_inch 
-        context.object.human_stable_height = context.object.human_height_inches
-        context.object.human_stable_width = context.object.human_width_inches
-        return 0
+
+# Function to change a piece of clothing:
+def changeClothingMesh(self, context):
     
-    elif context.scene.Units == 'Centimeter': # Cm
-        print("Changing cm")
-        #mesh_utilities.modifyMesh1D(context, context.object.human_height_cm / 2.5, context.object.human_width_cm / 2.5)
-        context.object.human_stable_height = context.object.human_height_cm / 2.5
-        context.object.human_stable_width = context.object.human_width_cm / 2.5
-        return 0
-    '''
-#Custom properties
-bpy.types.Object.human_height_inches = bpy.props.FloatProperty( name = "Height", min = 52, max = 82)#,update=changeMesh)
-bpy.types.Object.human_height_cm = bpy.props.FloatProperty( name = "Height", min = 52*2.5, max = 82*2.5)#,update=changeMesh)
-bpy.types.Object.human_width_inches = bpy.props.FloatProperty( name = "Width", min =1 , max = 24)#,update=changeMesh)
-bpy.types.Object.human_width_cm = bpy.props.FloatProperty( name = "Width", min = 2.5, max= 24*2.5)#,update=changeMesh)
-bpy.types.Object.human_stable_height = bpy.props.FloatProperty( name= "Stable_height",default=67)#,options={'HIDDEN'}) 
-bpy.types.Object.human_stable_width = bpy.props.FloatProperty( name= "Stable_width",default=12.5)#,options={'HIDDEN'}) 
+    # Select the current mesh to be the clothe to modify:
+    meshAccessor.setModelMesh(bpy.context.object)
+
+    # Does the user wish to mirror the changes made to the clothe on both sides?
+    if bpy.context.scene.mirror_prop == True:
+        print("DEBUG ONLY - The user wishes to mirror changes!")
+     
+    else:
+        print("DEBUG ONLY - The user does NOT wish to mirror changes!")
+    
+    
+    # Blender requires us to return None after an operator is called:
+    return None
+    
+# Custom Properties
+bpy.types.Object.human_height_inches = bpy.props.FloatProperty(name="Height", min=52, max=82)#,update=changeMesh)
+bpy.types.Object.human_height_cm = bpy.props.FloatProperty(name="Height", min=52*2.5, max=82*2.5)#,update=changeMesh)
+bpy.types.Object.human_width_inches = bpy.props.FloatProperty(name="Width", min=1 ,max=24)#,update=changeMesh)
+bpy.types.Object.human_width_cm = bpy.props.FloatProperty(name="Width", min=2.5, max=24*2.5)#,update=changeMesh)
+bpy.types.Object.human_stable_height = bpy.props.FloatProperty(name="Stable_height", default=67)#,options={'HIDDEN'}) 
+bpy.types.Object.human_stable_width = bpy.props.FloatProperty(name="Stable_width", default=12.5)#,options={'HIDDEN'}) 
+bpy.types.Object.clothing_height_inches = bpy.props.FloatProperty(name="Clothing Height", min=52/2.0+3, max=82/2.0+3) 
+bpy.types.Object.clothing_width_inches = bpy.props.FloatProperty(name="Clothing Width", min=1+3, max=24+3)
+
+# Scene Properties
+bpy.types.Scene.mirror_prop = BoolProperty(name="Mirror Changes", description="Mirror the changes made to one side of a model", default=True)
+
 
 ############################################################## END OF GLOBALS ############################################################
 
@@ -174,7 +181,11 @@ class MeshPanel(bpy.types.Panel):
         col1.operator("mesh.make_changes_to_human",text="Make Changes")
         # Allow changes of clothes properties
         col2 = layout.column(align=True)
+        layout.prop(scn, "mirror_prop", text="Mirror Changes?")
         col2.label(text="Clothing properties")
+        col2.prop(ob, "clothing_height_inches", slider=True)
+        col2.prop(ob, "clothing_width_inches", slider=True)
+        col2.operator("mesh.make_changes_to_clothing",text="Make Changes")
 
 # Operator to change human model
 class AlterHumanModel(bpy.types.Operator):
@@ -183,6 +194,18 @@ class AlterHumanModel(bpy.types.Operator):
     
     def execute(self, context):
         changeMesh(self, context)
+        return {"FINISHED"}
+    
+# Operator to change clothing model
+class AlterClothingModel(bpy.types.Operator):
+    bl_idname = "mesh.make_changes_to_clothing"
+    bl_label = "Change Model"
+    
+    def execute(self, context):
+        
+        # Tests passed!
+        print("Mirror Changes is: " + str(bpy.context.scene.mirror_prop))
+        changeClothingMesh(self, context)
         return {"FINISHED"}
         
 # Button to export selected model to .mhx
