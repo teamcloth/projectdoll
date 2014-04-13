@@ -23,7 +23,7 @@ from mesh_accessor import *
 from mesh_utilities import *
 
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
-from io_scene_obj import import_obj , export_obj
+from io_scene_obj import import_obj, export_obj
 import io_import_scene_mhx
 
 ############################################################# Global Vars############################################################ 
@@ -99,13 +99,21 @@ def changeMesh(self, context):
 # Function to change a piece of clothing:
 def changeClothingMesh(self, context):
     
-    
+    # Select the current mesh to be the clothe to modify:
+    meshAccessor.setModelMesh(bpy.context.object)
+
+    # Does the user wish to mirror the changes made to the clothe on both sides?
+    if bpy.context.scene.mirror_prop == True:
+        print("DEBUG ONLY - The user wishes to mirror changes!")
+     
+    else:
+        print("DEBUG ONLY - The user does NOT wish to mirror changes!")
     
     
     # Blender requires us to return None after an operator is called:
     return None
     
-#Custom properties
+# Custom Properties
 bpy.types.Object.human_height_inches = bpy.props.FloatProperty(name="Height", min=52, max=82)#,update=changeMesh)
 bpy.types.Object.human_height_cm = bpy.props.FloatProperty(name="Height", min=52*2.5, max=82*2.5)#,update=changeMesh)
 bpy.types.Object.human_width_inches = bpy.props.FloatProperty(name="Width", min=1 ,max=24)#,update=changeMesh)
@@ -114,6 +122,10 @@ bpy.types.Object.human_stable_height = bpy.props.FloatProperty(name="Stable_heig
 bpy.types.Object.human_stable_width = bpy.props.FloatProperty(name="Stable_width", default=12.5)#,options={'HIDDEN'}) 
 bpy.types.Object.clothing_height_inches = bpy.props.FloatProperty(name="Clothing Height", min=52/2.0+3, max=82/2.0+3) 
 bpy.types.Object.clothing_width_inches = bpy.props.FloatProperty(name="Clothing Width", min=1+3, max=24+3)
+
+# Scene Properties
+bpy.types.Scene.mirror_prop = BoolProperty(name="Mirror Changes", description="Mirror the changes made to one side of a model", default=True)
+
 
 ############################################################## END OF GLOBALS ############################################################
 
@@ -169,6 +181,7 @@ class MeshPanel(bpy.types.Panel):
         col1.operator("mesh.make_changes_to_human",text="Make Changes")
         # Allow changes of clothes properties
         col2 = layout.column(align=True)
+        layout.prop(scn, "mirror_prop", text="Mirror Changes?")
         col2.label(text="Clothing properties")
         col2.prop(ob, "clothing_height_inches", slider=True)
         col2.prop(ob, "clothing_width_inches", slider=True)
@@ -189,6 +202,9 @@ class AlterClothingModel(bpy.types.Operator):
     bl_label = "Change Model"
     
     def execute(self, context):
+        
+        # Tests passed!
+        print("Mirror Changes is: " + str(bpy.context.scene.mirror_prop))
         changeClothingMesh(self, context)
         return {"FINISHED"}
         
