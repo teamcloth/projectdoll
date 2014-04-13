@@ -1,0 +1,6 @@
+Pants:
+Waist (F, B, L, R)
+Individual Leg (F,B,L,R)
+Leg (F, B, L, R)
+Hip (F, B, L, R)
+Inseam (L, R)
