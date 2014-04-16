@@ -4,3 +4,11 @@ Individual Leg (F,B,L,R)
 Leg (F, B, L, R)
 Hip (F, B, L, R)
 Inseam (L, R)
+
+Shirts:
+Individual Arm (F, B, L, R)
+Bust/Chest (F, B, L, R)
+Waist (F, B, L, R)
+Shoulder (L, R)
+Armhole (L, R)
+Neck (F, B, L, R)
