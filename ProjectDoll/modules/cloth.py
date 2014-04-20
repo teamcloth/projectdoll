@@ -4,7 +4,7 @@ cloth.py - Class to represent a piece of clothing.
 Team Cloth
 4/16/14
 
-Last Updated: Bryant Pong: 4/16/14 - 3:37 PM
+Last Updated: Bryant Pong: 4/20/14 - 2:23 PM
 '''
 
 # Import the Blender Libraries:
@@ -28,6 +28,10 @@ class Cloth:
         self.height = 36.5
         self.mesh = bpy.context.object
         
+        # Populate the mesh_groups:
+        for i in range(len(self.getMesh().vertex_groups)):
+            self.mesh_groups.append(self.getMesh().vertex_groups[i].name)
+             
     # Accessor Functions:
     def getMeshGroups(self):
         return self.mesh_groups
