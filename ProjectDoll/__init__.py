@@ -29,6 +29,7 @@ from cloth import *
 from mesh_accessor import *
 from mesh_utilities import *
 
+import io_export_selected
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
 from io_scene_obj import import_obj, export_obj
 import io_import_scene_mhx
@@ -193,9 +194,13 @@ class FilePanel(bpy.types.Panel):
         #Import a custom model/mesh
         col = layout.column(align = True)
         col.label(text="Import other model")
+        '''
         row = col.row(align = True)
         row.operator("mesh.import_custom_model", text = "Clothing")
         row.operator(io_import_scene_mhx.ImportMhx.bl_idname, text = "Human")
+        '''
+        row2 = col.row(align=True)
+        row2.operator(io_export_selected.ExportSelected.bl_idname, text="Export .blend")
 	#end draw
 
 # Panel on the side, allowing the user to register/deregister human models and
@@ -327,7 +332,7 @@ class DeregisterMesh(bpy.types.Operator):
         print("DEBUG ONLY - Done deregistering mesh")
         
         return {"FINISHED"}
-        
+'''        
 # Button to export selected model to .mhx
 class ExportSelectedModel(bpy.types.Operator, ExportHelper):
     bl_idname = "mesh.export_selected_model"
@@ -597,7 +602,7 @@ class ImportCustomModel(bpy.types.Operator, ImportHelper):
             keywords["relpath"] = os.path.dirname((bpy.data.path_resolve("filepath", False).as_bytes()))
 
         return import_obj.load(self, context, **keywords)
-
+'''
 # register our classes into blender
 def register():
     bpy.utils.register_module(__name__)
