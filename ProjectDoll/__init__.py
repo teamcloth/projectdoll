@@ -22,14 +22,14 @@ from bpy.props import (BoolProperty,
                        IntProperty
                        )
                        
-# Cloth and Model Classes:
-from cloth import *
+# PDMesh class:
+from pdmesh import *
                      
 #Import the Project Doll Mesh Utilities:                       
 from mesh_accessor import *
 from mesh_utilities import *
 
-import io_export_selected
+# import io_export_selected
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
 from io_scene_obj import import_obj, export_obj
 import io_import_scene_mhx
@@ -137,7 +137,7 @@ def changeClothingMesh(self, context):
             
             print("human_stable_height is: " + str(context.object.clothing_stable_height))
             print("human_height_inches is: " + str(context.object.clothing_height_inches))
-            meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.007 * (context.object.clothing_height_inches - context.object.clothing_stable_height))
+            meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.01 * (context.object.clothing_height_inches - context.object.clothing_stable_height))
         
         # Next, let's change the width of the model:
         
@@ -300,14 +300,14 @@ class RegisterMesh(bpy.types.Operator):
         if bpy.context.scene.is_mesh_cloth == True and bpy.context.scene.is_mesh_model == False:
             print("DEBUG ONLY: This is a cloth object")
             
-            # Create an instance of a Cloth object and insert it into the allClothes list:
-            cloth = Cloth(bpy.context.scene.mesh_name)
+            # Create an instance of a PDMesh object and insert it into the allClothes list:
+            cloth = PDMesh(bpy.context.scene.mesh_name, 36.5, 15.5, "cloth")
             allClothes.append(cloth)
         elif bpy.context.scene.is_mesh_cloth == False and bpy.context.scene.is_mesh_model == True:
             print("DEBUG ONLY: This is a model object")
             
             # Create an instance of a Model object and insert it into the allModels list:
-            model = Model(bpy.context.scene.mesh_name)
+            model = PDMesh(bpy.context.scene.mesh_name, 67.0, 12.5, "model")
             allModels.append(model)
         else:
             print("DEBUG ONLY: This is neither a cloth or a model")
