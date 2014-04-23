@@ -1,5 +1,8 @@
 #------------------------------------------------------
 # Project Doll
+#
+# Team Cloth
+# CSCI-4440
 #-----------------------------------------------------
 
 bl_info = {
@@ -297,8 +300,13 @@ class RegisterMesh(bpy.types.Operator):
             allClothes.append(cloth)
         elif bpy.context.scene.is_mesh_cloth == False and bpy.context.scene.is_mesh_model == True:
             print("DEBUG ONLY: This is a model object")
+            
+            # Create an instance of a Model object and insert it into the allModels list:
+            model = Model(bpy.context.scene.mesh_name)
+            allModels.append(model)
         else:
             print("DEBUG ONLY: This is neither a cloth or a model")
+            pass
         
         print("DEBUG ONLY: Now leaving operator RegisterMesh")
         return {"FINISHED"}
@@ -309,6 +317,14 @@ class DeregisterMesh(bpy.types.Operator):
     bl_label = "Deregister Mesh"
     
     def execute(self, context):
+        
+        print("DEBUG ONLY - now deregistering mesh")
+        
+        # Search for the selected mesh in allClothes or allModels:
+        selected_mesh = bpy.context.object
+        
+        
+        print("DEBUG ONLY - Done deregistering mesh")
         
         return {"FINISHED"}
         
