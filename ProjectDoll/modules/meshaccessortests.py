@@ -57,8 +57,6 @@ class MeshAccessorTests(unittest.TestCase):
         pointCloud = self.meshAccessor.getVertexGroupPoints("BADVERTEXGROUP")
         self.assertEqual(pointCloud, None)
         
-    
-    
 # Run the Unit Tests, preventing the unittest library from closing Blender:
 if __name__ == '__main__':
     unittest.main(exit=False)
