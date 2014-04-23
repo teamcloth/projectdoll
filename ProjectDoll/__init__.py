@@ -29,7 +29,7 @@ from pdmesh import *
 from mesh_accessor import *
 from mesh_utilities import *
 
-# import io_export_selected
+import io_export_selected
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
 from io_scene_obj import import_obj, export_obj
 import io_import_scene_mhx
@@ -140,9 +140,9 @@ def changeClothingMesh(self, context):
             meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.01 * (context.object.clothing_height_inches - context.object.clothing_stable_height))
         
         # Next, let's change the width of the model:
-        
-        listOfFrontTorsoVertexGroups = ["Leg.F"]
-        listOfBackTorsoVertexGroups = ["Leg.B"]
+       
+        listOfFrontTorsoVertexGroups = [vertex_group for vertex_group in listOfVertexGroups if ".F" in vertex_group]
+        listOfBackTorsoVertexGroups = [vertex_group for vertex_group in listOfVertexGroups if ".B" in vertex_group]
    
         for vertexGroup in listOfFrontTorsoVertexGroups:
             nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
@@ -171,12 +171,13 @@ bpy.types.Object.clothing_height_inches = bpy.props.FloatProperty(name="Clothing
 bpy.types.Object.clothing_width_inches = bpy.props.FloatProperty(name="Clothing Width", min=1+3, max=24+3)
 bpy.types.Object.clothing_stable_height = bpy.props.FloatProperty(name="Clothing_stable_height", default=36.5)
 bpy.types.Object.clothing_stable_width = bpy.props.FloatProperty(name="Clothing_stable_width", default=15.5)
+bpy.types.Object.is_mesh_cloth = BoolProperty(name="Clothe Mesh", description="This mesh is a clothe object", default=False)
+bpy.types.Object.is_mesh_model = BoolProperty(name="Model Mesh", description="This mesh is a model object", default=False)
+bpy.types.Object.mesh_name = StringProperty(name="Mesh Name", description="This string holds the name of the specified mesh")
 
 # Scene Properties
 bpy.types.Scene.mirror_prop = BoolProperty(name="Mirror Changes", description="Mirror the changes made to one side of a model", default=True)
-bpy.types.Scene.is_mesh_cloth = BoolProperty(name="Clothe Mesh", description="This mesh is a clothe object", default=False)
-bpy.types.Scene.is_mesh_model = BoolProperty(name="Model Mesh", description="This mesh is a model object", default=False)
-bpy.types.Scene.mesh_name = StringProperty(name="Mesh Name", description="This string holds the name of the specified mesh")
+
 ############################################################## END OF GLOBALS ############################################################
 
 # Panel on side, import export buttons
@@ -200,7 +201,7 @@ class FilePanel(bpy.types.Panel):
         row.operator(io_import_scene_mhx.ImportMhx.bl_idname, text = "Human")
         '''
         row2 = col.row(align=True)
-        row2.operator(io_export_selected.ExportSelected.bl_idname, text="Export .blend")
+        #row2.operator(io_export_selected.ExportSelected.bl_idname, text="Export .blend")
 	#end draw
 
 # Panel on the side, allowing the user to register/deregister human models and
@@ -214,15 +215,16 @@ class RegisterPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         scn = context.scene
+        obj = context.object
         
         # Export the register/deregister buttons:
         col = layout.column(align=True)
         col.label(text="Register Selected Object")
         checkboxRow = col.row(align=True)
         textboxRow = col.row(align=True)
-        checkboxRow.prop(scn, "is_mesh_cloth", text="Cloth Mesh")
-        checkboxRow.prop(scn, "is_mesh_model", text="Model Mesh")
-        textboxRow.prop(scn, "mesh_name", text="Mesh Name")
+        checkboxRow.prop(obj, "is_mesh_cloth", text="Cloth Mesh")
+        checkboxRow.prop(obj, "is_mesh_model", text="Model Mesh")
+        textboxRow.prop(obj, "mesh_name", text="Mesh Name")
         
         col.operator("mesh.register_mesh", text = "Register Selected Object")
         
@@ -297,17 +299,17 @@ class RegisterMesh(bpy.types.Operator):
         print("DEBUG ONLY: Now inside operator RegisterMesh")
         
         # Is this a Cloth or Model Mesh?
-        if bpy.context.scene.is_mesh_cloth == True and bpy.context.scene.is_mesh_model == False:
+        if bpy.context.object.is_mesh_cloth == True and bpy.context.object.is_mesh_model == False:
             print("DEBUG ONLY: This is a cloth object")
             
             # Create an instance of a PDMesh object and insert it into the allClothes list:
-            cloth = PDMesh(bpy.context.scene.mesh_name, 36.5, 15.5, "cloth")
+            cloth = PDMesh(bpy.context.object.mesh_name, 36.5, 15.5, "cloth")
             allClothes.append(cloth)
-        elif bpy.context.scene.is_mesh_cloth == False and bpy.context.scene.is_mesh_model == True:
+        elif bpy.context.object.is_mesh_cloth == False and bpy.context.object.is_mesh_model == True:
             print("DEBUG ONLY: This is a model object")
             
             # Create an instance of a Model object and insert it into the allModels list:
-            model = PDMesh(bpy.context.scene.mesh_name, 67.0, 12.5, "model")
+            model = PDMesh(bpy.context.object.mesh_name, 67.0, 12.5, "model")
             allModels.append(model)
         else:
             print("DEBUG ONLY: This is neither a cloth or a model")
@@ -327,6 +329,16 @@ class DeregisterMesh(bpy.types.Operator):
         
         # Search for the selected mesh in allClothes or allModels:
         selected_mesh = bpy.context.object
+        
+        for cloth in allClothes:
+            if cloth.getMesh() == selected_mesh:
+                allClothes.remove(cloth)
+                print("DEBUG ONLY - successfully removed cloth!")
+                
+        for model in allModels:
+            if model.getMesh() == selected_mesh:
+                allModels.remove(model)
+                print("DEBUG ONLY - successfully removed model!")
         
         
         print("DEBUG ONLY - Done deregistering mesh")

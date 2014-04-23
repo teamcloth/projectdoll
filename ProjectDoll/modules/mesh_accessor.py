@@ -4,15 +4,12 @@ mesh_accessor.py - This class provides functions to access a mesh from the model
 Team Cloth
 3/29/14
 
-Last Updated: Bryant Pong: 4/6/14 - 2:01 PM
+Last Updated: Bryant Pong: 4/23/14 - 3:07 PM
 '''
 
 # Blender API Libraries:
 import bpy
 import bmesh
-
-# Unittest Unit Tests:
-import unittest
 
 # Class definition for Mesh_Accessor:
 class MeshAccessor:
