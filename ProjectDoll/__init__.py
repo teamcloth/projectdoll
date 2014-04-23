@@ -30,6 +30,7 @@ from mesh_accessor import *
 from mesh_utilities import *
 
 import io_export_selected
+# from io_export_selected import ExportSelected
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
 from io_scene_obj import import_obj, export_obj
 import io_import_scene_mhx
@@ -201,7 +202,7 @@ class FilePanel(bpy.types.Panel):
         row.operator(io_import_scene_mhx.ImportMhx.bl_idname, text = "Human")
         '''
         row2 = col.row(align=True)
-        #row2.operator(io_export_selected.ExportSelected.bl_idname, text="Export .blend")
+        row2.operator(io_export_selected.ExportSelected.bl_idname, text="Export Blend")
 	#end draw
 
 # Panel on the side, allowing the user to register/deregister human models and
@@ -344,290 +345,23 @@ class DeregisterMesh(bpy.types.Operator):
         print("DEBUG ONLY - Done deregistering mesh")
         
         return {"FINISHED"}
-'''        
-# Button to export selected model to .mhx
-class ExportSelectedModel(bpy.types.Operator, ExportHelper):
-    bl_idname = "mesh.export_selected_model"
-    bl_label = "Exports Selected Mesh"
-    
-    
-    filename_ext = ".obj"
-    filter_glob = StringProperty(
-            default="*.obj;*.mtl",
-            options={'HIDDEN'},
-            )
 
-    # context group
-    use_selection = BoolProperty(
-            name="Selection Only",
-            description="Export selected objects only",
-            default=False,
-            )
-    use_animation = BoolProperty(
-            name="Animation",
-            description="Write out an OBJ for each frame",
-            default=False,
-            )
-
-    # object group
-    use_mesh_modifiers = BoolProperty(
-            name="Apply Modifiers",
-            description="Apply modifiers (preview resolution)",
-            default=True,
-            )
-
-    # extra data group
-    use_edges = BoolProperty(
-            name="Include Edges",
-            description="",
-            default=True,
-            )
-    use_smooth_groups = BoolProperty(
-            name="Smooth Groups",
-            description="Write sharp edges as smooth groups",
-            default=False,
-            )
-    use_smooth_groups_bitflags = BoolProperty(
-            name="Bitflag Smooth Groups",
-            description="Same as 'Smooth Groups', but generate smooth groups IDs as bitflags "
-                        "(produces at most 32 different smooth groups, usually much less)",
-            default=False,
-            )
-    use_normals = BoolProperty(
-            name="Include Normals",
-            description="",
-            default=False,
-            )
-    use_uvs = BoolProperty(
-            name="Include UVs",
-            description="Write out the active UV coordinates",
-            default=True,
-            )
-    use_materials = BoolProperty(
-            name="Write Materials",
-            description="Write out the MTL file",
-            default=True,
-            )
-    use_triangles = BoolProperty(
-            name="Triangulate Faces",
-            description="Convert all faces to triangles",
-            default=False,
-            )
-    use_nurbs = BoolProperty(
-            name="Write Nurbs",
-            description="Write nurbs curves as OBJ nurbs rather than "
-                        "converting to geometry",
-            default=False,
-            )
-    use_vertex_groups = BoolProperty(
-            name="Polygroups",
-            description="",
-            default=False,
-            )
-
-    # grouping group
-    use_blen_objects = BoolProperty(
-            name="Objects as OBJ Objects",
-            description="",
-            default=True,
-            )
-    group_by_object = BoolProperty(
-            name="Objects as OBJ Groups ",
-            description="",
-            default=False,
-            )
-    group_by_material = BoolProperty(
-            name="Material Groups",
-            description="",
-            default=False,
-            )
-    keep_vertex_order = BoolProperty(
-            name="Keep Vertex Order",
-            description="",
-            default=False,
-            )
-
-    axis_forward = EnumProperty(
-            name="Forward",
-            items=(('X', "X Forward", ""),
-                   ('Y', "Y Forward", ""),
-                   ('Z', "Z Forward", ""),
-                   ('-X', "-X Forward", ""),
-                   ('-Y', "-Y Forward", ""),
-                   ('-Z', "-Z Forward", ""),
-                   ),
-            default='-Z',
-            )
-    axis_up = EnumProperty(
-            name="Up",
-            items=(('X', "X Up", ""),
-                   ('Y', "Y Up", ""),
-                   ('Z', "Z Up", ""),
-                   ('-X', "-X Up", ""),
-                   ('-Y', "-Y Up", ""),
-                   ('-Z', "-Z Up", ""),
-                   ),
-            default='Y',
-            )
-    global_scale = FloatProperty(
-            name="Scale",
-            min=0.01, max=1000.0,
-            default=1.0,
-            )
-
-    path_mode = path_reference_mode
-
-    check_extension = True
-
-    def execute(self, context):
-        #from . import export_obj
-
-        from mathutils import Matrix
-        keywords = self.as_keywords(ignore=("axis_forward",
-                                            "axis_up",
-                                            "global_scale",
-                                            "check_existing",
-                                            "filter_glob",
-                                            ))
-
-        global_matrix = (Matrix.Scale(self.global_scale, 4) *
-                         axis_conversion(to_forward=self.axis_forward,
-                                         to_up=self.axis_up,
-                                         ).to_4x4())
-
-        keywords["global_matrix"] = global_matrix
-        return export_obj.save(self, context, **keywords)
-
-
-#Button to import exported model             
-class ImportCustomModel(bpy.types.Operator, ImportHelper):
-    
-    bl_idname = "mesh.import_custom_model"
-    bl_label = "Import Custom Model"
-    bl_options = {'PRESET', 'UNDO'}
-    
-    filename_ext = ".obj"
-    filter_glob = StringProperty(
-            default="*.obj;*.mtl",
-            options={'HIDDEN'},
-            )
-
-    use_ngons = BoolProperty(
-            name="NGons",
-            description="Import faces with more than 4 verts as ngons",
-            default=True,
-            )
-    use_edges = BoolProperty(
-            name="Lines",
-            description="Import lines and faces with 2 verts as edge",
-            default=True,
-            )
-    use_smooth_groups = BoolProperty(
-            name="Smooth Groups",
-            description="Surround smooth groups by sharp edges",
-            default=True,
-            )
-
-    use_split_objects = BoolProperty(
-            name="Object",
-            description="Import OBJ Objects into Blender Objects",
-            default=True,
-            )
-    use_split_groups = BoolProperty(
-            name="Group",
-            description="Import OBJ Groups into Blender Objects",
-            default=True,
-            )
-
-    use_groups_as_vgroups = BoolProperty(
-            name="Poly Groups",
-            description="Import OBJ groups as vertex groups",
-            default=False,
-            )
-
-    use_image_search = BoolProperty(
-            name="Image Search",
-            description="Search subdirs for any associated images "
-                        "(Warning, may be slow)",
-            default=True,
-            )
-
-    split_mode = EnumProperty(
-            name="Split",
-            items=(('ON', "Split", "Split geometry, omits unused verts"),
-                   ('OFF', "Keep Vert Order", "Keep vertex order from file"),
-                   ),
-            )
-
-    global_clamp_size = FloatProperty(
-            name="Clamp Size",
-            description="Clamp bounds under this value (zero to disable)",
-            min=0.0, max=1000.0,
-            soft_min=0.0, soft_max=1000.0,
-            default=0.0,
-            )
-    axis_forward = EnumProperty(
-            name="Forward",
-            items=(('X', "X Forward", ""),
-                   ('Y', "Y Forward", ""),
-                   ('Z', "Z Forward", ""),
-                   ('-X', "-X Forward", ""),
-                   ('-Y', "-Y Forward", ""),
-                   ('-Z', "-Z Forward", ""),
-                   ),
-            default='-Z',
-            )
-
-    axis_up = EnumProperty(
-            name="Up",
-            items=(('X', "X Up", ""),
-                   ('Y', "Y Up", ""),
-                   ('Z', "Z Up", ""),
-                   ('-X', "-X Up", ""),
-                   ('-Y', "-Y Up", ""),
-                   ('-Z', "-Z Up", ""),
-                   ),
-            default='Y',
-            )
-    
-    def execute(self, context):
-        # print("Selected: " + context.active_object.name)    
-        if self.split_mode == 'OFF':
-            self.use_split_objects = False
-            self.use_split_groups = False
-        else:
-            self.use_groups_as_vgroups = False
-
-        keywords = self.as_keywords(ignore=("axis_forward",
-                                            "axis_up",
-                                            "filter_glob",
-                                            "split_mode",
-                                            ))
-
-        global_matrix = axis_conversion(from_forward=self.axis_forward,
-                                        from_up=self.axis_up,
-                                        ).to_4x4()
-        keywords["global_matrix"] = global_matrix
-
-        if bpy.data.is_saved and context.user_preferences.filepaths.use_relative_paths:
-            import os
-            keywords["relpath"] = os.path.dirname((bpy.data.path_resolve("filepath", False).as_bytes()))
-
-        return import_obj.load(self, context, **keywords)
-'''
 # register our classes into blender
 def register():
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(FilePanel)
     bpy.types.INFO_MT_file_import.append(RegisterPanel)
     bpy.types.INFO_MT_file_import.append(MeshPanel)
+    bpy.utils.register_class(io_export_selected.ExportSelected)
     
 
 def unregister():
     bpy.utils.register_module(__name__)
+    bpy.utils.unregister_class(ExportSelected)
     bpy.types.INFO_MT_file_import.append(FilePanel)
     bpy.types.INFO_MT_file_import.append(RegisterPanel)
     bpy.types.INFO_MT_file_import.append(MeshPanel)
+    
     
     
 if __name__ == "__main__":
