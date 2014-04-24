@@ -30,10 +30,8 @@ from mesh_accessor import *
 from mesh_utilities import *
 
 import io_export_selected
-# from io_export_selected import ExportSelected
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
-from io_scene_obj import import_obj, export_obj
-import io_import_scene_mhx
+import os
 
 ############################################################# Global Vars############################################################ 
 
@@ -178,7 +176,8 @@ bpy.types.Object.mesh_name = StringProperty(name="Mesh Name", description="This 
 
 # Scene Properties
 bpy.types.Scene.mirror_prop = BoolProperty(name="Mirror Changes", description="Mirror the changes made to one side of a model", default=True)
-
+bpy.types.Scene.append_file_path = StringProperty(name="Path", description="Path to .blend file", subtype="FILE_PATH")
+bpy.types.Scene.obj_name = StringProperty(name="Object name", description="Object to bring in from another .blend file")
 ############################################################## END OF GLOBALS ############################################################
 
 # Panel on side, import export buttons
@@ -190,20 +189,21 @@ class FilePanel(bpy.types.Panel):
     
     def draw(self, context):
         layout = self.layout
-        
-        #Export the selected model button
+        scn = context.scene
+                
         col = layout.column(align = True)
         #Import a custom model/mesh
         col = layout.column(align = True)
-        col.label(text="Import other model")
-        '''
-        row = col.row(align = True)
-        row.operator("mesh.import_custom_model", text = "Clothing")
-        row.operator(io_import_scene_mhx.ImportMhx.bl_idname, text = "Human")
-        '''
-        row2 = col.row(align=True)
-        row2.operator(io_export_selected.ExportSelected.bl_idname, text="Export Blend")
-	#end draw
+        col.label(text="Export Selected object")
+        # Export the selected object to a separate .blend file
+        col.operator(io_export_selected.ExportSelected.bl_idname, text="Export Blend")
+        col2 = layout.column(align = True)
+        col2.label(text="Import an existing object")
+        # Displays Object name
+        col2.prop(scn,"obj_name", text="Object Name")
+        # Choose .blend file via file selector
+        col2.prop(scn,"append_file_path",text="Filepath to .blend file")
+        col2.operator("mesh.append_obj", text="Bring it in")
 
 # Panel on the side, allowing the user to register/deregister human models and
 # Clothing models:
@@ -229,7 +229,7 @@ class RegisterPanel(bpy.types.Panel):
         
         col.operator("mesh.register_mesh", text = "Register Selected Object")
         
-        col2 = layout.column(align = True)
+        col2 = layout.row(align = True)
         col2.label(text="Deregister Selected Object")
         col2.operator("mesh.deregister_mesh", text = "Deregister Selected Object")
 
@@ -240,12 +240,6 @@ class MeshPanel(bpy.types.Panel):
     bl_context = "objectmode"
     bl_label = "Mesh Properties"
     
-    # Properties
-    bpy.types.Scene.Units = EnumProperty(
-        name="Units", description="Choose One", 
-        items=(('Inches', 'Inch', 'Descript1'), ('Centimeter','Cm', 'Descript2')), 
-        default='Inches',
-        )
                
     def draw(self, context):
         layout = self.layout
@@ -264,7 +258,7 @@ class MeshPanel(bpy.types.Panel):
         col1.operator("mesh.make_changes_to_human",text="Make Changes")
         # Allow changes of clothes properties
         col2 = layout.column(align=True)
-        layout.prop(scn, "mirror_prop", text="Mirror Changes?")
+        #layout.prop(scn, "mirror_prop", text="Mirror Changes?")
         col2.label(text="Clothing properties")
         col2.prop(ob, "clothing_height_inches", slider=True)
         col2.prop(ob, "clothing_width_inches", slider=True)
@@ -346,6 +340,28 @@ class DeregisterMesh(bpy.types.Operator):
         
         return {"FINISHED"}
 
+# Operator to append an object from another .blend file
+class AppendObject(bpy.types.Operator):
+    bl_idname = "mesh.append_obj"
+    bl_label = "Appending object"
+    
+    
+    def execute(self, context):
+        # Get the scene for access to Scene vars
+        scn = context.scene
+        # We only want to import Objects for now
+        import_type = "Object"
+        # Grab the name from the panel
+        fn = scn.obj_name
+        # Grab the path from the panel
+        fp = scn.append_file_path
+        # The directory is fp with the import type appended onto it
+        dir = os.path.abspath(fp) + "\\"+ import_type + "\\"
+        # The append function imports it in but needs all 3 parameters
+        bpy.ops.wm.link_append(filepath=fp,directory=dir,filename=fn)
+        return {"FINISHED"}
+
+    
 # register our classes into blender
 def register():
     bpy.utils.register_module(__name__)
