@@ -4,7 +4,7 @@ mesh_accessor.py - This class provides functions to access a mesh from the model
 Team Cloth
 3/29/14
 
-Last Updated: Bryant Pong: 4/23/14 - 3:07 PM
+Last Updated: 4/24/14 - 5:00 PM
 '''
 
 # Blender API Libraries:
@@ -51,7 +51,6 @@ class MeshAccessor:
     def getVertexGroupPoints(self, vertexGroupName):
         
         groupIndex = -1
-        print("groupIndex: " + str(groupIndex))
         
         '''
         First, let's loop through all the vertex groups to find the index of the
@@ -78,7 +77,7 @@ class MeshAccessor:
         
         vertexGroupPoints = []
         
-        # Let's now get all the points in the specified vertex group!
+        # Let's now get all the points in the specified vertex group:
         for vertex in self.getModelMesh().data.vertices:
             for group in vertex.groups:
                 if group.group == groupIndex:
