@@ -239,8 +239,7 @@ class MeshPanel(bpy.types.Panel):
     bl_region_type = "TOOLS"
     bl_context = "objectmode"
     bl_label = "Mesh Properties"
-    
-               
+            
     def draw(self, context):
         layout = self.layout
         scn = context.scene
@@ -260,9 +259,32 @@ class MeshPanel(bpy.types.Panel):
         col2 = layout.column(align=True)
         #layout.prop(scn, "mirror_prop", text="Mirror Changes?")
         col2.label(text="Clothing properties")
+        # Displays properties of clothing to be changed
         col2.prop(ob, "clothing_height_inches", slider=True)
         col2.prop(ob, "clothing_width_inches", slider=True)
+        # This is the button to change the clothing
         col2.operator("mesh.make_changes_to_clothing",text="Make Changes")
+        col3 = layout.column(align=True)
+        col3.label(text="Auto marks seams in SEAMS")
+        col3.operator("mesh.auto_unwrap", text="Mark for unwrap")
+
+# Operator to unwrap the selected mesh
+class UnwrapMesh(bpy.types.Operator):
+    bl_idname = "mesh.auto_unwrap"
+    bl_label = "Unwrap the mesh"
+    
+    def execute(self, context):
+        # Get the selected object
+        ob = bpy.context.object
+        # Turn context to edit mode to unwrap
+        bpy.ops.object.mode_set(mode='EDIT')
+        # Set the active vertex group to be SEAMS
+        bpy.ops.object.vertex_group_set_active(group='SEAMS')
+        # Select all verticies of the active group
+        bpy.ops.object.vertex_group_select()
+        # Mark all selected edges as seams
+        bpy.ops.mesh.mark_seam(clear=False)
+        return {"FINISHED"}
 
 # Operator to change human model
 class AlterHumanModel(bpy.types.Operator):
@@ -358,7 +380,7 @@ class AppendObject(bpy.types.Operator):
         # The directory is fp with the import type appended onto it
         dir = os.path.abspath(fp) + "\\"+ import_type + "\\"
         # The append function imports it in but needs all 3 parameters
-        bpy.ops.wm.link_append(filepath=fp,directory=dir,filename=fn)
+        bpy.ops.wm.link_append(filepath=fp,directory=dir,filename=fn,link=False)
         return {"FINISHED"}
 
     
