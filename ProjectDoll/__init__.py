@@ -5,7 +5,7 @@ Team Cloth
 CSCI-4440
 2/9/14
 
-Last Updated: 2/9/14 - 4:51 PM
+Last Updated: 2/9/14 - 8:25 PM
 '''
 
 bl_info = {
@@ -104,8 +104,7 @@ def changeClothingMesh(self, context):
     
     # Select the current mesh to be the clothe to modify:
     meshAccessor.setModelMesh(bpy.context.object)
-
-        
+    
     # List of the names of vertex groups for this piece of clothing:
     listOfVertexGroups = []
        
@@ -181,7 +180,7 @@ class FilePanel(bpy.types.Panel):
         #Import a custom model/mesh
         col = layout.column(align = True)
         col.label(text="Export Selected object")
-        # Export the selected object to a separate .blend file
+        # Export the selected object to a separate .blend file.  This calls a 3rd party function from "io_export_selected.py"
         col.operator(io_export_selected.ExportSelected.bl_idname, text="Export Blend")
         col2 = layout.column(align = True)
         col2.label(text="Import an existing object")
