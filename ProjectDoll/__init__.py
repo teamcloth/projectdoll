@@ -1,9 +1,12 @@
-#------------------------------------------------------
-# Project Doll
-#
-# Team Cloth
-# CSCI-4440
-#-----------------------------------------------------
+'''
+__init__.py - Project Doll main code.
+
+Team Cloth
+CSCI-4440
+2/9/14
+
+Last Updated: 4/27/14 - 2:56 PM
+'''
 
 bl_info = {
 	"name":	"Project Doll",
@@ -25,19 +28,18 @@ from bpy.props import (BoolProperty,
 # PDMesh class:
 from pdmesh import *
                      
-#Import the Project Doll Mesh Utilities:                       
+# Import the Project Doll Mesh Utilities:                       
 from mesh_accessor import *
 from mesh_utilities import *
 
 import io_export_selected
-# from io_export_selected import ExportSelected
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
 import os
 
 ############################################################# Global Vars############################################################ 
 
 # Global MeshAccessor Object (from mesh_accessor.py):
-meshAccessor = MeshAccessor(bpy.context.object)
+meshAccessor = MeshAccessor() #MeshAccessor(bpy.context.object)
 
 # Global MeshUtilities Object (from mesh_utilties.py):
 meshUtilities = MeshUtilities()
@@ -46,15 +48,9 @@ meshUtilities = MeshUtilities()
 allClothes = []
 allModels = []
 
-# Global list containing objects within a .blend file:
-objs = []
-
 # Function called when model height/width is changed
-def changeMesh(self, context):
-    
-    print("human_stable_height is " + str(context.object.human_stable_height))
-    print("human_stable_width is " + str(context.object.human_stable_width))
-    
+def changeMesh(self, context):  
+   
     ''' 
     Let's first get the current mesh to operate on (in case the user has selected
     another mesh beforehand):
@@ -75,15 +71,10 @@ def changeMesh(self, context):
     vertex group, and then modify them:
     '''
     for vertexGroup in listOfModelVertexGroups:
-        #print("vertexGroup is: " + str(vertexGroup))
         nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
-        print("human_stable_height is: " + str(context.object.human_stable_height))
-        print("human_height_inches is: " + str(context.object.human_height_inches))
         meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.007 * (context.object.human_height_inches - context.object.human_stable_height))
         
-    '''
-    Next, let's change the width of the model:
-    '''
+    # Next, let's change the width of the model:
     listOfLeftTorsoSideVertexGroups = meshUtilities.leftTorsoSide
     listOfRightTorsoSideVertexGroups = meshUtilities.rightTorsoSide
     listOfFrontTorsoVertexGroups = meshUtilities.frontTorso
@@ -111,55 +102,46 @@ def changeClothingMesh(self, context):
     
     # Select the current mesh to be the clothe to modify:
     meshAccessor.setModelMesh(bpy.context.object)
-
-    # Does the user wish to mirror the changes made to the clothe on both sides?
-    if bpy.context.scene.mirror_prop == True:
-        print("DEBUG ONLY - The user wishes to mirror changes!")
-        
-        # List of the names of vertex groups for this piece of clothing:
-        listOfVertexGroups = []
-        
-        # Find the Cloth object in allClothes:
-        for clothing in allClothes:
-            if clothing.getMesh() == bpy.context.object:
-                print("DEBUG ONLY - found the specified clothing object!")
-                listOfVertexGroups = clothing.getMeshGroups()
-                break
-            
-        # Tests passed
-        print(listOfVertexGroups)
-     
-        '''
-        We need to change the height of the currently selected model.  To do so,
-        iterate through these vertex groups, get the points corresponding to each
-        vertex group, and then modify them:
-        '''
-        for vertexGroup in listOfVertexGroups:
-            #print("vertexGroup is: " + str(vertexGroup))
-            nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
-            
-            print("human_stable_height is: " + str(context.object.clothing_stable_height))
-            print("human_height_inches is: " + str(context.object.clothing_height_inches))
-            meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.01 * (context.object.clothing_height_inches - context.object.clothing_stable_height))
-        
-        # Next, let's change the width of the model:
+    
+    # List of the names of vertex groups for this piece of clothing:
+    listOfVertexGroups = []
        
-        listOfFrontTorsoVertexGroups = [vertex_group for vertex_group in listOfVertexGroups if ".F" in vertex_group]
-        listOfBackTorsoVertexGroups = [vertex_group for vertex_group in listOfVertexGroups if ".B" in vertex_group]
+    # Find the Cloth object in allClothes:
+    for clothing in allClothes:
+        if clothing.getMesh() == bpy.context.object:
+            # The specified clothing has been found
+            listOfVertexGroups = clothing.getMeshGroups()
+            break
+       
+    '''
+    We need to change the height of the currently selected model.  To do so,
+    iterate through these vertex groups, get the points corresponding to each
+    vertex group, and then modify them:
+    '''
+    for vertexGroup in listOfVertexGroups:
+        nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
+        meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.04 * (context.object.clothing_height_inches - context.object.clothing_stable_height))
+      
+    # Next, let's change the width of the model:
+     
+    listOfFrontTorsoVertexGroups = [vertex_group for vertex_group in listOfVertexGroups if ".F" in vertex_group]
+    listOfBackTorsoVertexGroups = [vertex_group for vertex_group in listOfVertexGroups if ".B" in vertex_group]
+    
+    print("listOfFrontTorsoVertexGroups: ")
+    for temp in listOfFrontTorsoVertexGroups:
+        print(temp)
    
-        for vertexGroup in listOfFrontTorsoVertexGroups:
-            nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
-            meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0.01 * (context.object.clothing_stable_width - context.object.clothing_width_inches), 0)
+    for vertexGroup in listOfFrontTorsoVertexGroups:
+        nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
+        meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0.01 * (context.object.clothing_stable_width - context.object.clothing_width_inches), 0)
         
-        for vertexGroup in listOfBackTorsoVertexGroups:
-            nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
-            meshUtilities.modifyMesh1D(nextVertexGroup, 0, -0.01 * (context.object.clothing_stable_width - context.object.clothing_width_inches), 0)
+    for vertexGroup in listOfBackTorsoVertexGroups:
+        nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
+        meshUtilities.modifyMesh1D(nextVertexGroup, 0, -0.01 * (context.object.clothing_stable_width - context.object.clothing_width_inches), 0)
         
-        context.object.clothing_stable_height = context.object.clothing_height_inches
-        context.object.clothing_stable_width = context.object.clothing_width_inches
-    else:
-        print("DEBUG ONLY - The user does NOT wish to mirror changes!")
-        
+    context.object.clothing_stable_height = context.object.clothing_height_inches
+    context.object.clothing_stable_width = context.object.clothing_width_inches
+    
     # Blender requires us to return None after an operator is called:
     return None
     
@@ -179,7 +161,6 @@ bpy.types.Object.is_mesh_model = BoolProperty(name="Model Mesh", description="Th
 bpy.types.Object.mesh_name = StringProperty(name="Mesh Name", description="This string holds the name of the specified mesh")
 
 # Scene Properties
-bpy.types.Scene.mirror_prop = BoolProperty(name="Mirror Changes", description="Mirror the changes made to one side of a model", default=True)
 bpy.types.Scene.append_file_path = StringProperty(name="Path", description="Path to .blend file", subtype="FILE_PATH")
 bpy.types.Scene.obj_name = StringProperty(name="Object name", description="Object to bring in from another .blend file")
 ############################################################## END OF GLOBALS ############################################################
@@ -199,17 +180,15 @@ class FilePanel(bpy.types.Panel):
         #Import a custom model/mesh
         col = layout.column(align = True)
         col.label(text="Export Selected object")
-        # Export the selected object to a separate .blend file
+        # Export the selected object to a separate .blend file.  This calls a 3rd party function from "io_export_selected.py"
         col.operator(io_export_selected.ExportSelected.bl_idname, text="Export Blend")
         col2 = layout.column(align = True)
         col2.label(text="Import an existing object")
         # Displays Object name
         col2.prop(scn,"obj_name", text="Object Name")
         # Choose .blend file via file selector
-        #col2.operator("menu.choose_path", text="Choose .blend file")
         col2.prop(scn,"append_file_path",text="Filepath to .blend file")
         col2.operator("mesh.append_obj", text="Bring it in")
-	# end draw
 
 # Panel on the side, allowing the user to register/deregister human models and
 # Clothing models:
@@ -236,7 +215,7 @@ class RegisterPanel(bpy.types.Panel):
         col.operator("mesh.register_mesh", text = "Register Selected Object")
         
         col2 = layout.row(align = True)
-        col2.label(text="Deregister Selected Object")
+        #col2.label(text="Deregister Selected Object")
         col2.operator("mesh.deregister_mesh", text = "Deregister Selected Object")
 
 #Another Panel for Human properties
@@ -246,13 +225,9 @@ class MeshPanel(bpy.types.Panel):
     bl_context = "objectmode"
     bl_label = "Mesh Properties"
     
-    # Properties
-    bpy.types.Scene.Units = EnumProperty(
-        name="Units", description="Choose One", 
-        items=(('Inches', 'Inch', 'Descript1'), ('Centimeter','Cm', 'Descript2')), 
-        default='Inches',
-        )
-               
+    def poll(cls, context):
+        return (context.object is not None)
+    
     def draw(self, context):
         layout = self.layout
         scn = context.scene
@@ -270,11 +245,33 @@ class MeshPanel(bpy.types.Panel):
         col1.operator("mesh.make_changes_to_human",text="Make Changes")
         # Allow changes of clothes properties
         col2 = layout.column(align=True)
-        layout.prop(scn, "mirror_prop", text="Mirror Changes?")
         col2.label(text="Clothing properties")
+        # Displays properties of clothing to be changed
         col2.prop(ob, "clothing_height_inches", slider=True)
         col2.prop(ob, "clothing_width_inches", slider=True)
+        # This is the button to change the clothing
         col2.operator("mesh.make_changes_to_clothing",text="Make Changes")
+        col3 = layout.column(align=True)
+        col3.label(text="Auto marks seams in SEAMS")
+        col3.operator("mesh.auto_unwrap", text="Mark for unwrap")
+
+# Operator to unwrap the selected mesh
+class UnwrapMesh(bpy.types.Operator):
+    bl_idname = "mesh.auto_unwrap"
+    bl_label = "Unwrap the mesh"
+    
+    def execute(self, context):
+        # Get the selected object
+        ob = bpy.context.object
+        # Turn context to edit mode to unwrap
+        bpy.ops.object.mode_set(mode='EDIT')
+        # Set the active vertex group to be SEAMS
+        bpy.ops.object.vertex_group_set_active(group='SEAMS')
+        # Select all verticies of the active group
+        bpy.ops.object.vertex_group_select()
+        # Mark all selected edges as seams
+        bpy.ops.mesh.mark_seam(clear=False)
+        return {"FINISHED"}
 
 # Operator to change human model
 class AlterHumanModel(bpy.types.Operator):
@@ -291,8 +288,6 @@ class AlterClothingModel(bpy.types.Operator):
     bl_label = "Change Model"
     
     def execute(self, context):
-        # Tests passed!
-        print("Mirror Changes is: " + str(bpy.context.scene.mirror_prop))
         changeClothingMesh(self, context)
         return {"FINISHED"}
     
@@ -302,27 +297,21 @@ class RegisterMesh(bpy.types.Operator):
     bl_label = "Register Mesh"
     
     def execute(self, context):
-        
-        print("DEBUG ONLY: Now inside operator RegisterMesh")
-        
         # Is this a Cloth or Model Mesh?
         if bpy.context.object.is_mesh_cloth == True and bpy.context.object.is_mesh_model == False:
-            print("DEBUG ONLY: This is a cloth object")
-            
+                        
             # Create an instance of a PDMesh object and insert it into the allClothes list:
             cloth = PDMesh(bpy.context.object.mesh_name, 36.5, 15.5, "cloth")
             allClothes.append(cloth)
         elif bpy.context.object.is_mesh_cloth == False and bpy.context.object.is_mesh_model == True:
-            print("DEBUG ONLY: This is a model object")
             
             # Create an instance of a Model object and insert it into the allModels list:
             model = PDMesh(bpy.context.object.mesh_name, 67.0, 12.5, "model")
             allModels.append(model)
         else:
-            print("DEBUG ONLY: This is neither a cloth or a model")
+            # This is neither a cloth or model mesh:
             pass
         
-        print("DEBUG ONLY: Now leaving operator RegisterMesh")
         return {"FINISHED"}
     
 # Operator to deregister a class:
@@ -331,25 +320,18 @@ class DeregisterMesh(bpy.types.Operator):
     bl_label = "Deregister Mesh"
     
     def execute(self, context):
-        
-        print("DEBUG ONLY - now deregistering mesh")
-        
+       
         # Search for the selected mesh in allClothes or allModels:
         selected_mesh = bpy.context.object
         
         for cloth in allClothes:
             if cloth.getMesh() == selected_mesh:
                 allClothes.remove(cloth)
-                print("DEBUG ONLY - successfully removed cloth!")
                 
         for model in allModels:
             if model.getMesh() == selected_mesh:
                 allModels.remove(model)
-                print("DEBUG ONLY - successfully removed model!")
-        
-        
-        print("DEBUG ONLY - Done deregistering mesh")
-        
+              
         return {"FINISHED"}
 
 # Operator to append an object from another .blend file
@@ -357,59 +339,37 @@ class AppendObject(bpy.types.Operator):
     bl_idname = "mesh.append_obj"
     bl_label = "Appending object"
     
-    
     def execute(self, context):
+        # Get the scene for access to Scene vars
         scn = context.scene
+        # We only want to import Objects for now
         import_type = "Object"
+        # Grab the name from the panel
         fn = scn.obj_name
-        #fp = os.path.join(scn.append_file_path, import_type)
+        # Grab the path from the panel
         fp = scn.append_file_path
+        # The directory is fp with the import type appended onto it
         dir = os.path.abspath(fp) + "\\"+ import_type + "\\"
-        #fp = os.path.join(fp,fn)
-        #filename="Cube"
-        #DEBUG ONLY
-        print(fp)
-        print(dir)
-        print(fn)
-        bpy.ops.wm.link_append(filepath=fp,directory=dir,filename=fn,filemode=1)
-        #/home/raymondtse/Documents/classNotes/SDD/projectdoll/models/Test.blend
-        #/home/raymondtse/Documents/classNotes/SDD/projectdoll/models/Test.blend/Object
-        #bpy.ops.wm.link_append(filepath="/home/raymondtse/Documents/classNotes/SDD/projectdoll/models/Test.blend", directory="/home/raymondtse/Documents/classNotes/SDD/projectdoll/models/Test.blend\\Object\\", filename="Cube")
-        #print (self.filepath)
+        # The append function imports it in but needs all 3 parameters
+        bpy.ops.wm.link_append(filepath=fp,directory=dir,filename=fn,relative_path=False,link=False)
         return {"FINISHED"}
 
-class ChooseDir(bpy.types.Operator, ImportHelper):
-    bl_idname = "menu.choose_path"
-    bl_label = "Pick a path"
     
-    filepath = bpy.props.StringProperty(subtype="FILE_PATH")
-    
-    # limit file extensions
-    filename_ext = ".blend"
-    filter_glob = StringProperty(default="*.blend",options={"HIDDEN"})
-    
-    def execute(self, context):
-        bpy.types.Scene.append_file_path = self.filepath
-        return {"FINISHED"}
-
 # register our classes into blender
 def register():
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(FilePanel)
     bpy.types.INFO_MT_file_import.append(RegisterPanel)
     bpy.types.INFO_MT_file_import.append(MeshPanel)
-    bpy.utils.register_class(io_export_selected.ExportSelected)
+    #bpy.utils.register_class(io_export_selected.ExportSelected)
     
-
 def unregister():
-    bpy.utils.register_module(__name__)
-    bpy.utils.unregister_class(ExportSelected)
-    bpy.types.INFO_MT_file_import.append(FilePanel)
-    bpy.types.INFO_MT_file_import.append(RegisterPanel)
-    bpy.types.INFO_MT_file_import.append(MeshPanel)
-    
-    
-    
+    bpy.utils.unregister_module(__name__)
+    bpy.utils.unregister_class(io_export_selected.ExportSelected)
+    bpy.types.INFO_MT_file_import.remove(FilePanel)
+    bpy.types.INFO_MT_file_import.remove(RegisterPanel)
+    bpy.types.INFO_MT_file_import.remove(MeshPanel)
+        
 if __name__ == "__main__":
     register()
 

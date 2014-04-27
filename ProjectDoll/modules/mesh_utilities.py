@@ -147,7 +147,3 @@ class MeshUtilities:
             vertex.co.x += bMGX
             vertex.co.y += bMGY
             vertex.co.z += bMGZ
-       
-    '''
-    modifyMeshSide() allows a user to modify 
-    '''

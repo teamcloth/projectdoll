@@ -4,15 +4,12 @@ mesh_accessor.py - This class provides functions to access a mesh from the model
 Team Cloth
 3/29/14
 
-Last Updated: Bryant Pong: 4/6/14 - 2:01 PM
+Last Updated: 4/24/14 - 5:00 PM
 '''
 
 # Blender API Libraries:
 import bpy
 import bmesh
-
-# Unittest Unit Tests:
-import unittest
 
 # Class definition for Mesh_Accessor:
 class MeshAccessor:
@@ -21,13 +18,13 @@ class MeshAccessor:
     Mesh_Accessor constructor.  We need to pass in the actual model that will be
     modified.  The model is of type "MESH" (bpy.data.object).
     '''
-    def __init__(self, modelMeshIn):
+    def __init__(self): # modelMeshIn):
         '''
         Instance variables:
         modelMesh: This is the model mesh to modify.
         currentVertexGroup: This is the current vertex group to modify.
         '''
-        self.modelMesh = modelMeshIn
+        self.modelMesh = None # modelMeshIn
         self.currentVertexGroup = None
         
     ''' 
@@ -54,7 +51,6 @@ class MeshAccessor:
     def getVertexGroupPoints(self, vertexGroupName):
         
         groupIndex = -1
-        print("groupIndex: " + str(groupIndex))
         
         '''
         First, let's loop through all the vertex groups to find the index of the
@@ -81,7 +77,7 @@ class MeshAccessor:
         
         vertexGroupPoints = []
         
-        # Let's now get all the points in the specified vertex group!
+        # Let's now get all the points in the specified vertex group:
         for vertex in self.getModelMesh().data.vertices:
             for group in vertex.groups:
                 if group.group == groupIndex:

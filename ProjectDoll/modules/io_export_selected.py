@@ -223,8 +223,9 @@ class ExportSelected(bpy.types.Operator, ExportHelper):
     bl_idname = "export_scene.selected"
     bl_label = "Export Selected"
     
+    # Altered to be .blend by default
     filename_ext = bpy.props.StringProperty(
-        default="",
+        default=".blend",
         options={'HIDDEN'},
         )
     
