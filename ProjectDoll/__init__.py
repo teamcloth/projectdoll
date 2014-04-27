@@ -161,7 +161,6 @@ bpy.types.Object.is_mesh_model = BoolProperty(name="Model Mesh", description="Th
 bpy.types.Object.mesh_name = StringProperty(name="Mesh Name", description="This string holds the name of the specified mesh")
 
 # Scene Properties
-# bpy.types.Scene.mirror_prop = BoolProperty(name="Mirror Changes", description="Mirror the changes made to one side of a model", default=True)
 bpy.types.Scene.append_file_path = StringProperty(name="Path", description="Path to .blend file", subtype="FILE_PATH")
 bpy.types.Scene.obj_name = StringProperty(name="Object name", description="Object to bring in from another .blend file")
 ############################################################## END OF GLOBALS ############################################################
@@ -216,7 +215,7 @@ class RegisterPanel(bpy.types.Panel):
         col.operator("mesh.register_mesh", text = "Register Selected Object")
         
         col2 = layout.row(align = True)
-        col2.label(text="Deregister Selected Object")
+        #col2.label(text="Deregister Selected Object")
         col2.operator("mesh.deregister_mesh", text = "Deregister Selected Object")
 
 #Another Panel for Human properties
@@ -225,7 +224,10 @@ class MeshPanel(bpy.types.Panel):
     bl_region_type = "TOOLS"
     bl_context = "objectmode"
     bl_label = "Mesh Properties"
-            
+    
+    def poll(cls, context):
+        return (context.object is not None)
+    
     def draw(self, context):
         layout = self.layout
         scn = context.scene
@@ -243,7 +245,6 @@ class MeshPanel(bpy.types.Panel):
         col1.operator("mesh.make_changes_to_human",text="Make Changes")
         # Allow changes of clothes properties
         col2 = layout.column(align=True)
-        #layout.prop(scn, "mirror_prop", text="Mirror Changes?")
         col2.label(text="Clothing properties")
         # Displays properties of clothing to be changed
         col2.prop(ob, "clothing_height_inches", slider=True)
@@ -287,8 +288,6 @@ class AlterClothingModel(bpy.types.Operator):
     bl_label = "Change Model"
     
     def execute(self, context):
-        # Tests passed!
-        print("Mirror Changes is: " + str(bpy.context.scene.mirror_prop))
         changeClothingMesh(self, context)
         return {"FINISHED"}
     
@@ -352,7 +351,7 @@ class AppendObject(bpy.types.Operator):
         # The directory is fp with the import type appended onto it
         dir = os.path.abspath(fp) + "\\"+ import_type + "\\"
         # The append function imports it in but needs all 3 parameters
-        bpy.ops.wm.link_append(filepath=fp,directory=dir,filename=fn,link=False)
+        bpy.ops.wm.link_append(filepath=fp,directory=dir,filename=fn,relative_path=False,link=False)
         return {"FINISHED"}
 
     
