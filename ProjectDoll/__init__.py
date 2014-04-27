@@ -5,7 +5,7 @@ Team Cloth
 CSCI-4440
 2/9/14
 
-Last Updated: 2/9/14 - 8:25 PM
+Last Updated: 4/27/14 - 2:08 PM
 '''
 
 bl_info = {
@@ -39,7 +39,7 @@ import os
 ############################################################# Global Vars############################################################ 
 
 # Global MeshAccessor Object (from mesh_accessor.py):
-meshAccessor = MeshAccessor(bpy.context.object)
+meshAccessor = MeshAccessor() #MeshAccessor(bpy.context.object)
 
 # Global MeshUtilities Object (from mesh_utilties.py):
 meshUtilities = MeshUtilities()
@@ -74,9 +74,7 @@ def changeMesh(self, context):
         nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
         meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.007 * (context.object.human_height_inches - context.object.human_stable_height))
         
-    '''
-    Next, let's change the width of the model:
-    '''
+    # Next, let's change the width of the model:
     listOfLeftTorsoSideVertexGroups = meshUtilities.leftTorsoSide
     listOfRightTorsoSideVertexGroups = meshUtilities.rightTorsoSide
     listOfFrontTorsoVertexGroups = meshUtilities.frontTorso
@@ -128,6 +126,10 @@ def changeClothingMesh(self, context):
      
     listOfFrontTorsoVertexGroups = [vertex_group for vertex_group in listOfVertexGroups if ".F" in vertex_group]
     listOfBackTorsoVertexGroups = [vertex_group for vertex_group in listOfVertexGroups if ".B" in vertex_group]
+    
+    print("listOfFrontTorsoVertexGroups: ")
+    for temp in listOfFrontTorsoVertexGroups:
+        print(temp)
    
     for vertexGroup in listOfFrontTorsoVertexGroups:
         nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
@@ -140,7 +142,6 @@ def changeClothingMesh(self, context):
     context.object.clothing_stable_height = context.object.clothing_height_inches
     context.object.clothing_stable_width = context.object.clothing_width_inches
     
-        
     # Blender requires us to return None after an operator is called:
     return None
     
@@ -160,7 +161,7 @@ bpy.types.Object.is_mesh_model = BoolProperty(name="Model Mesh", description="Th
 bpy.types.Object.mesh_name = StringProperty(name="Mesh Name", description="This string holds the name of the specified mesh")
 
 # Scene Properties
-bpy.types.Scene.mirror_prop = BoolProperty(name="Mirror Changes", description="Mirror the changes made to one side of a model", default=True)
+# bpy.types.Scene.mirror_prop = BoolProperty(name="Mirror Changes", description="Mirror the changes made to one side of a model", default=True)
 bpy.types.Scene.append_file_path = StringProperty(name="Path", description="Path to .blend file", subtype="FILE_PATH")
 bpy.types.Scene.obj_name = StringProperty(name="Object name", description="Object to bring in from another .blend file")
 ############################################################## END OF GLOBALS ############################################################
@@ -364,11 +365,11 @@ def register():
     bpy.utils.register_class(io_export_selected.ExportSelected)
     
 def unregister():
-    bpy.utils.register_module(__name__)
-    bpy.utils.unregister_class(ExportSelected)
-    bpy.types.INFO_MT_file_import.append(FilePanel)
-    bpy.types.INFO_MT_file_import.append(RegisterPanel)
-    bpy.types.INFO_MT_file_import.append(MeshPanel)
+    bpy.utils.unregister_module(__name__)
+    bpy.utils.unregister_class(io_export_selected.ExportSelected)
+    bpy.types.INFO_MT_file_import.remove(FilePanel)
+    bpy.types.INFO_MT_file_import.remove(RegisterPanel)
+    bpy.types.INFO_MT_file_import.remove(MeshPanel)
         
 if __name__ == "__main__":
     register()

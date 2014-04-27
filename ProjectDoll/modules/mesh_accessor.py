@@ -18,13 +18,13 @@ class MeshAccessor:
     Mesh_Accessor constructor.  We need to pass in the actual model that will be
     modified.  The model is of type "MESH" (bpy.data.object).
     '''
-    def __init__(self, modelMeshIn):
+    def __init__(self): # modelMeshIn):
         '''
         Instance variables:
         modelMesh: This is the model mesh to modify.
         currentVertexGroup: This is the current vertex group to modify.
         '''
-        self.modelMesh = modelMeshIn
+        self.modelMesh = None # modelMeshIn
         self.currentVertexGroup = None
         
     ''' 
