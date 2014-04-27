@@ -215,7 +215,7 @@ class RegisterPanel(bpy.types.Panel):
         col.operator("mesh.register_mesh", text = "Register Selected Object")
         
         col2 = layout.row(align = True)
-        col2.label(text="Deregister Selected Object")
+        #col2.label(text="Deregister Selected Object")
         col2.operator("mesh.deregister_mesh", text = "Deregister Selected Object")
 
 #Another Panel for Human properties
@@ -224,7 +224,10 @@ class MeshPanel(bpy.types.Panel):
     bl_region_type = "TOOLS"
     bl_context = "objectmode"
     bl_label = "Mesh Properties"
-            
+    
+    def poll(cls, context):
+        return (context.object is not None)
+    
     def draw(self, context):
         layout = self.layout
         scn = context.scene
@@ -242,7 +245,6 @@ class MeshPanel(bpy.types.Panel):
         col1.operator("mesh.make_changes_to_human",text="Make Changes")
         # Allow changes of clothes properties
         col2 = layout.column(align=True)
-        #layout.prop(scn, "mirror_prop", text="Mirror Changes?")
         col2.label(text="Clothing properties")
         # Displays properties of clothing to be changed
         col2.prop(ob, "clothing_height_inches", slider=True)
@@ -286,7 +288,6 @@ class AlterClothingModel(bpy.types.Operator):
     bl_label = "Change Model"
     
     def execute(self, context):
-        # Tests passed!
         changeClothingMesh(self, context)
         return {"FINISHED"}
     
@@ -350,7 +351,7 @@ class AppendObject(bpy.types.Operator):
         # The directory is fp with the import type appended onto it
         dir = os.path.abspath(fp) + "\\"+ import_type + "\\"
         # The append function imports it in but needs all 3 parameters
-        bpy.ops.wm.link_append(filepath=fp,directory=dir,filename=fn,link=False)
+        bpy.ops.wm.link_append(filepath=fp,directory=dir,filename=fn,relative_path=False,link=False)
         return {"FINISHED"}
 
     
