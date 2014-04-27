@@ -5,7 +5,7 @@ Team Cloth
 CSCI-4440
 2/9/14
 
-Last Updated: 4/27/14 - 2:08 PM
+Last Updated: 4/27/14 - 2:56 PM
 '''
 
 bl_info = {
@@ -120,7 +120,7 @@ def changeClothingMesh(self, context):
     '''
     for vertexGroup in listOfVertexGroups:
         nextVertexGroup = meshAccessor.getVertexGroupPoints(vertexGroup)
-        meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.01 * (context.object.clothing_height_inches - context.object.clothing_stable_height))
+        meshUtilities.modifyMesh1D(nextVertexGroup, 0, 0, 0.04 * (context.object.clothing_height_inches - context.object.clothing_stable_height))
       
     # Next, let's change the width of the model:
      
@@ -161,7 +161,6 @@ bpy.types.Object.is_mesh_model = BoolProperty(name="Model Mesh", description="Th
 bpy.types.Object.mesh_name = StringProperty(name="Mesh Name", description="This string holds the name of the specified mesh")
 
 # Scene Properties
-# bpy.types.Scene.mirror_prop = BoolProperty(name="Mirror Changes", description="Mirror the changes made to one side of a model", default=True)
 bpy.types.Scene.append_file_path = StringProperty(name="Path", description="Path to .blend file", subtype="FILE_PATH")
 bpy.types.Scene.obj_name = StringProperty(name="Object name", description="Object to bring in from another .blend file")
 ############################################################## END OF GLOBALS ############################################################
@@ -288,7 +287,6 @@ class AlterClothingModel(bpy.types.Operator):
     
     def execute(self, context):
         # Tests passed!
-        print("Mirror Changes is: " + str(bpy.context.scene.mirror_prop))
         changeClothingMesh(self, context)
         return {"FINISHED"}
     
@@ -362,7 +360,7 @@ def register():
     bpy.types.INFO_MT_file_import.append(FilePanel)
     bpy.types.INFO_MT_file_import.append(RegisterPanel)
     bpy.types.INFO_MT_file_import.append(MeshPanel)
-    bpy.utils.register_class(io_export_selected.ExportSelected)
+    #bpy.utils.register_class(io_export_selected.ExportSelected)
     
 def unregister():
     bpy.utils.unregister_module(__name__)
