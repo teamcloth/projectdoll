@@ -27,9 +27,8 @@ class MeshAccessor:
         self.modelMesh = None # modelMeshIn
         self.currentVertexGroup = None
         
-    ''' 
-    Accessor and Modifying Functions.
-    '''
+    
+    # Accessor and Modifying Functions.
     def getModelMesh(self):
         return self.modelMesh
     

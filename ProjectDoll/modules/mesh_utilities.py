@@ -19,8 +19,8 @@ import unittest
 class MeshUtilities:
     
     '''
-    Constructor for Mesh_Utilities.  Because there are certain mesh groups
-    that are often accessed, a Mesh_Utilities object will also contain a list
+    Constructor for MeshUtilities.  Because there are certain mesh groups
+    that are often accessed, a MeshUtilities object will also contain a list
     of strings naming these mesh groups.
     
     The mesh lists are:

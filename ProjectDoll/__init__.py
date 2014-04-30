@@ -225,8 +225,8 @@ class MeshPanel(bpy.types.Panel):
     bl_context = "objectmode"
     bl_label = "Mesh Properties"
     
-    def poll(cls, context):
-        return (context.object is not None)
+    #def poll(cls, context):
+    #return (context.object is not None)
     
     def draw(self, context):
         layout = self.layout
@@ -361,7 +361,7 @@ def register():
     bpy.types.INFO_MT_file_import.append(FilePanel)
     bpy.types.INFO_MT_file_import.append(RegisterPanel)
     bpy.types.INFO_MT_file_import.append(MeshPanel)
-    #bpy.utils.register_class(io_export_selected.ExportSelected)
+    bpy.utils.register_class(io_export_selected.ExportSelected)
     
 def unregister():
     bpy.utils.unregister_module(__name__)
