@@ -58,7 +58,7 @@ class PDMeshTests(unittest.TestCase):
         self.mesh.setWidth(100)
         
         # The mesh's width should now be 100:
-        self.assertEqual(self.mesh.
+        self.assertEqual(self.mesh.getWidth(), 100)
 
 # Run the unittests:
 if __name__ == "__main__":
