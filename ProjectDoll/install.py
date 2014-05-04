@@ -15,7 +15,7 @@ import shutil
 def main():
 
 	# Get the path to Blender:
-	blenderPath = str(raw_input("Please enter the path to Blender: "))
+	blenderPath = str(input("Please enter the path to Blender: "))
 	blenderPath += "/2.69/scripts/"
 	
 	'''
