@@ -4,9 +4,9 @@
 install.py - Python script to install Project doll into a new user's directory.
 
 Team Cloth
-4/30/13
+4/30/14
 
-Last Updated: 4/30/13 - 4:15 PM
+Last Updated: 5/4/14 - 1:48 PM
 '''
 import os
 import shutil
@@ -43,12 +43,12 @@ def main():
 	
 	# Get all files in the modulesDirectory:
 	modulesFiles = os.listdir(modulesDirectory)
-	print(modulesFiles)
 
 	for nextFile in modulesFiles:
 		fullFileName = currentDirectory + "/modules/" + nextFile
 		shutil.copy(fullFileName, blenderModules)	 
 	  	
+	print("Done installing Project Doll!")
 
 # Run the installation script:
 if __name__ == "__main__":
